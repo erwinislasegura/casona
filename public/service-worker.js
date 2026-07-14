@@ -1,4 +1,4 @@
-const PWA_VERSION = 'fiesta-80s-v1.0.0';
+const PWA_VERSION = 'fiesta-80s-v1.0.1';
 const STATIC_CACHE = `${PWA_VERSION}-static`;
 const PAGE_CACHE = `${PWA_VERSION}-pages`;
 const OFFLINE_URL = '/offline.html';
@@ -15,9 +15,9 @@ const STATIC_ASSETS = [
   '/assets/logo-san-gabriel.png','/assets/logo-ciclon.jpeg','/assets/logo-la-casona.jpeg','/assets/abba-color-1.png','/assets/abba-color-2.png','/assets/abba-color-3.png','/assets/abba.png','/assets/abba-cta.jpg'
 ];
 const SENSITIVE_PATTERNS = [
-  /^\/admin\/api\//, /^\/admin\/reservas\//, /^\/admin\/entradas\//, /^\/admin\/usuarios\//,
-  /^\/admin\/configuracion\//, /^\/storage\//, /comprobante/i, /pdf/i, /token/i, /session/i,
-  /^\/admin\/login$/
+  /(?:^|\/)admin\/api\//, /(?:^|\/)admin\/reservas\//, /(?:^|\/)admin\/entradas\//, /(?:^|\/)admin\/usuarios\//,
+  /(?:^|\/)admin\/configuracion\//, /(?:^|\/)storage\//, /comprobante/i, /pdf/i, /token/i, /session/i,
+  /(?:^|\/)admin\/login\/?(?:\?.*)?$/
 ];
 const STATIC_PATTERN = /\.(?:css|js|png|jpg|jpeg|webp|svg|ico|woff2?)$/i;
 self.addEventListener('install', (event) => {

@@ -43,9 +43,9 @@ $error = $error ?? '';
         <?= $error ? htmlspecialchars($error, ENT_QUOTES, 'UTF-8') : 'Mensaje del sistema' ?>
       </div>
 
-      <form method="post" action="<?= $basePath ?>/admin/login" autocomplete="on" class="compact-login-form">
+      <form method="post" action="<?= $basePath ?>/admin/login/" autocomplete="on" class="compact-login-form">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '', ENT_QUOTES, 'UTF-8') ?>">
-        <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectTo ?? ($basePath . '/admin'), ENT_QUOTES, 'UTF-8') ?>">
+        <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectTo ?? ($basePath . '/admin/'), ENT_QUOTES, 'UTF-8') ?>">
 
         <div class="mb-2">
           <label for="email" class="form-label">Usuario</label>
@@ -62,7 +62,7 @@ $error = $error ?? '';
 
         <div class="auth-options">
           <label class="form-check m-0"><input class="form-check-input" type="checkbox" name="remember" value="1"> <span class="form-check-label">Recordarme</span></label>
-          <a class="link" href="<?= $basePath ?>/admin/forgot-password">¿Olvidaste tu contraseña?</a>
+          <a class="link" href="<?= $basePath ?>/admin/forgot-password/">¿Olvidaste tu contraseña?</a>
         </div>
 
         <button class="btn auth-submit w-100" type="submit" data-requires-online>Ingresar al panel</button>
