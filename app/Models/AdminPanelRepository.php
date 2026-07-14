@@ -108,6 +108,39 @@ final class AdminPanelRepository
         }
     }
 
+
+    public function updateReservaDetails(int $id, array $input): void
+    {
+        $people = max(1, min(20, (int)($input['people_count'] ?? 1)));
+        $total = $people * 6000;
+        $stmt = $this->db->prepare('UPDATE reservas SET full_name = :full_name, rut = :rut, phone = :phone, email = :email, people_count = :people_count, total_amount = :total_amount WHERE id = :id');
+        $stmt->execute([
+            'full_name' => trim((string)($input['full_name'] ?? '')),
+            'rut' => trim((string)($input['rut'] ?? '')),
+            'phone' => trim((string)($input['phone'] ?? '')),
+            'email' => trim((string)($input['email'] ?? '')),
+            'people_count' => $people,
+            'total_amount' => $total,
+            'id' => $id,
+        ]);
+    }
+
+    public function deleteReserva(int $id): void
+    {
+        $stmt = $this->db->prepare('SELECT receipt_path FROM reservas WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $receiptPath = (string)($stmt->fetchColumn() ?: '');
+
+        $this->db->prepare('DELETE FROM entradas WHERE reserva_id = :id')->execute(['id' => $id]);
+        $this->db->prepare('DELETE FROM reservas WHERE id = :id')->execute(['id' => $id]);
+
+        if ($receiptPath !== '' && str_starts_with($receiptPath, '/storage/comprobantes/')) {
+            foreach ([dirname(__DIR__, 2) . '/public' . $receiptPath, dirname(__DIR__, 2) . $receiptPath] as $file) {
+                if (is_file($file)) @unlink($file);
+            }
+        }
+    }
+
     public function saveSettings(array $input): void
     {
         $allowed = ['event_name', 'sales_mode', 'notifications'];
