@@ -56,7 +56,7 @@ final class AdminPanelRepository
 
     public function entradas(): array
     {
-        return $this->db->query("SELECT e.id, e.status, e.issued_at, e.entered_at, r.full_name, r.request_code FROM entradas e JOIN reservas r ON r.id = e.reserva_id ORDER BY e.issued_at DESC LIMIT 12")->fetchAll();
+        return $this->db->query("SELECT e.id, e.status, e.issued_at, e.entered_at, r.full_name, r.request_code, r.people_count FROM entradas e JOIN reservas r ON r.id = e.reserva_id WHERE e.status <> 'void' ORDER BY e.issued_at DESC LIMIT 12")->fetchAll();
     }
 
     public function settings(): array
@@ -85,7 +85,7 @@ final class AdminPanelRepository
 
         $this->ensureTicketTokens($id);
 
-        $tickets = $this->db->prepare('SELECT id, ticket_code, holder_name, qr_token, status, issued_at FROM entradas WHERE reserva_id = :id ORDER BY id ASC');
+        $tickets = $this->db->prepare("SELECT id, ticket_code, holder_name, qr_token, status, issued_at FROM entradas WHERE reserva_id = :id AND status <> 'void' ORDER BY id ASC LIMIT 1");
         $tickets->execute(['id' => $id]);
         $reservation['tickets'] = $tickets->fetchAll();
         return $reservation;
@@ -140,23 +140,31 @@ final class AdminPanelRepository
         $row = $reservation->fetch();
         if (!$row) return;
 
-        $existing = $this->db->prepare("SELECT COUNT(*) FROM entradas WHERE reserva_id = :id AND status <> 'void'");
+        $existing = $this->db->prepare("SELECT id FROM entradas WHERE reserva_id = :id AND status <> 'void' ORDER BY id ASC");
         $existing->execute(['id' => $id]);
-        $missing = max(0, (int)$row['people_count'] - (int)$existing->fetchColumn());
-        if ($missing === 0) return;
+        $activeTickets = $existing->fetchAll();
 
-        $insert = $this->db->prepare("INSERT INTO entradas (ticket_code, reserva_id, holder_name, qr_token, qr_token_hash, status) VALUES (:ticket_code, :reserva_id, :holder_name, :qr_token, :qr_token_hash, 'issued')");
-        for ($i = 1; $i <= $missing; $i++) {
-            $ticketCode = $row['request_code'] . '-' . str_pad((string)(((int)$row['people_count'] - $missing) + $i), 2, '0', STR_PAD_LEFT);
-            $token = $ticketCode . '-' . bin2hex(random_bytes(12));
-            $insert->execute([
-                'ticket_code' => $ticketCode,
-                'reserva_id' => $id,
-                'holder_name' => $row['full_name'],
-                'qr_token' => $token,
-                'qr_token_hash' => hash('sha256', $token),
-            ]);
+        if (count($activeTickets) > 1) {
+            $keepId = (int)$activeTickets[0]['id'];
+            $voidExtra = $this->db->prepare("UPDATE entradas SET status = 'void' WHERE reserva_id = :reserva_id AND id <> :keep_id AND status <> 'void'");
+            $voidExtra->execute(['reserva_id' => $id, 'keep_id' => $keepId]);
         }
+
+        if (!empty($activeTickets)) {
+            $this->ensureTicketTokens($id);
+            return;
+        }
+
+        $ticketCode = $row['request_code'] . '-GRUPO';
+        $token = $ticketCode . '-' . bin2hex(random_bytes(12));
+        $insert = $this->db->prepare("INSERT INTO entradas (ticket_code, reserva_id, holder_name, qr_token, qr_token_hash, status) VALUES (:ticket_code, :reserva_id, :holder_name, :qr_token, :qr_token_hash, 'issued')");
+        $insert->execute([
+            'ticket_code' => $ticketCode,
+            'reserva_id' => $id,
+            'holder_name' => $row['full_name'],
+            'qr_token' => $token,
+            'qr_token_hash' => hash('sha256', $token),
+        ]);
     }
 
 
@@ -218,7 +226,7 @@ final class AdminPanelRepository
     public function validateTicket(string $token, int $adminId): array
     {
         $hash = hash('sha256', trim($token));
-        $stmt = $this->db->prepare('SELECT e.id, e.status, r.full_name, r.request_code FROM entradas e JOIN reservas r ON r.id = e.reserva_id WHERE e.qr_token_hash = :hash LIMIT 1');
+        $stmt = $this->db->prepare('SELECT e.id, e.status, r.full_name, r.request_code, r.people_count FROM entradas e JOIN reservas r ON r.id = e.reserva_id WHERE e.qr_token_hash = :hash LIMIT 1');
         $stmt->execute(['hash' => $hash]);
         $ticket = $stmt->fetch();
         if (!$ticket) return ['ok' => false, 'message' => 'Entrada no encontrada.'];
@@ -226,6 +234,6 @@ final class AdminPanelRepository
         if ($ticket['status'] !== 'issued') return ['ok' => false, 'message' => 'Entrada no válida: ' . $ticket['status'] . '.'];
         $update = $this->db->prepare("UPDATE entradas SET status = 'entered', entered_at = NOW(), scanned_by = :admin WHERE id = :id");
         $update->execute(['admin' => $adminId, 'id' => $ticket['id']]);
-        return ['ok' => true, 'message' => 'Entrada validada: ' . $ticket['full_name'] . ' · ' . $ticket['request_code']];
+        return ['ok' => true, 'message' => 'Entrada validada: ' . $ticket['full_name'] . ' · ' . $ticket['request_code'] . ' · válida para ' . (int)$ticket['people_count'] . ' persona(s).'];
     }
 }

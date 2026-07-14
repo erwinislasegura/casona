@@ -147,9 +147,10 @@ function build_ticket_page(array $reservation, array $ticket, int $number, int $
     $content .= pdf_rect(52, 618, 5, 32, '1 0.81 0.36');
     $content .= pdf_text(66, 638, 20, 'FIESTA OCHENTERA SOLIDARIA', '1 1 1');
     $content .= pdf_text(66, 616, 10, 'Bingo · Karaoke · Tributo ABBA · Fiesta bailable', '0.82 0.89 1');
-    $content .= pdf_text(52, 556, 34, 'ENTRADA DIGITAL', '0.07 0.10 0.18');
-    $content .= pdf_text(52, 530, 12, 'Viernes 24 de julio de 2026 · Desde las 21:00 horas', '0.30 0.35 0.44');
-    $content .= pdf_text(52, 508, 12, 'Club La Casona · Los Ángeles', '0.30 0.35 0.44');
+    $content .= pdf_text(52, 556, 31, 'ENTRADA DIGITAL UNICA', '0.07 0.10 0.18');
+    $content .= pdf_text(52, 530, 12, 'Valida para ' . (int)$reservation['people_count'] . ' persona(s) registrada(s)', '0.30 0.35 0.44');
+    $content .= pdf_text(52, 512, 12, 'Viernes 24 de julio de 2026 · Desde las 21:00 horas', '0.30 0.35 0.44');
+    $content .= pdf_text(52, 494, 12, 'Club La Casona · Los Ángeles', '0.30 0.35 0.44');
     $content .= pdf_rect(52, 470, 300, 1.4, '0.86 0.89 0.94');
     $content .= pdf_text(52, 440, 11, 'ASISTENTE', '0.58 0.63 0.70');
     $content .= pdf_text(52, 418, 18, $holder, '0.07 0.10 0.18');
@@ -164,15 +165,15 @@ function build_ticket_page(array $reservation, array $ticket, int $number, int $
     $content .= pdf_text(390, 348, 8, 'Valido una sola vez', '0.58 0.63 0.70');
     $content .= pdf_rect(52, 120, 455, 70, '0.93 0.96 1');
     $content .= pdf_text(70, 164, 10, 'IMPORTANTE', '0.07 0.10 0.18');
-    $content .= pdf_text(70, 144, 9, 'Presenta esta entrada digital al llegar. El QR sera validado por el scanner oficial.', '0.30 0.35 0.44');
-    $content .= pdf_text(70, 126, 9, 'Entrada ' . $number . ' de ' . $total . ' · Estado: ' . (string)$ticket['status'], '0.30 0.35 0.44');
+    $content .= pdf_text(70, 144, 9, 'Presenta esta entrada digital al llegar. Un solo QR valida a todo el grupo.', '0.30 0.35 0.44');
+    $content .= pdf_text(70, 126, 9, 'Entrada unica · ' . (int)$reservation['people_count'] . ' persona(s) · Estado: ' . (string)$ticket['status'], '0.30 0.35 0.44');
     return $content;
 }
 
 function build_tickets_pdf(array $reservation): string
 {
     $tickets = $reservation['tickets'] ?? [];
-    if (empty($tickets)) $tickets = [['id' => 0, 'ticket_code' => $reservation['request_code'], 'holder_name' => $reservation['full_name'], 'qr_token' => '', 'status' => 'pending']];
+    if (empty($tickets)) $tickets = [['id' => 0, 'ticket_code' => $reservation['request_code'] . '-GRUPO', 'holder_name' => $reservation['full_name'], 'qr_token' => '', 'status' => 'pending']];
     $objects = [];
     $objects[1] = '';
     $objects[2] = '';
