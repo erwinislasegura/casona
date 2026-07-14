@@ -2,11 +2,18 @@
 
 final class AdminAuthRepository
 {
+    private const SEEDED_USERNAME = 'adminfiesta';
+    private const SEEDED_EMAIL = 'adminfiesta@fiesta80s.local';
+    private const SEEDED_PASSWORD_HASH = '$2y$12$43esaSM2P94l0Aa8RPhyk.omjZi7ye8kgPO5NBpudb1slJjKXoHzG';
+
     public function __construct(private PDO $db) {}
 
     public function findActiveUserByEmail(string $email): ?array
     {
         $login = mb_strtolower(trim($email));
+        $this->ensureUsernameSupport();
+        $this->createSeedAdminIfNeeded($login);
+
         $stmt = $this->db->prepare('SELECT * FROM admin_users WHERE (email = :login OR username = :login) AND is_active = 1 LIMIT 1');
         $stmt->execute(['login' => $login]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -46,6 +53,52 @@ final class AdminAuthRepository
             'selector' => $selector,
             'token_hash' => hash('sha256', $plainToken),
             'expires_at' => $expiresAt->format('Y-m-d H:i:s'),
+        ]);
+    }
+
+    private function ensureUsernameSupport(): void
+    {
+        try {
+            $this->db->query('SELECT username FROM admin_users LIMIT 1');
+            return;
+        } catch (PDOException) {
+            // Existing local databases created before username support need a one-time repair.
+        }
+
+        try {
+            $this->db->exec('ALTER TABLE admin_users ADD COLUMN username VARCHAR(60) NULL AFTER name');
+        } catch (PDOException) {
+            // Column may already exist after a concurrent/manual migration.
+        }
+
+        $this->db->exec("UPDATE admin_users SET username = LOWER(SUBSTRING_INDEX(email, '@', 1)) WHERE username IS NULL OR username = ''");
+
+        try {
+            $this->db->exec('ALTER TABLE admin_users MODIFY username VARCHAR(60) NOT NULL');
+        } catch (PDOException) {
+            // Keep login usable even if the local MySQL variant cannot modify the column inline.
+        }
+
+        try {
+            $this->db->exec('CREATE UNIQUE INDEX uq_admin_users_username ON admin_users (username)');
+        } catch (PDOException) {
+            // Index may already exist.
+        }
+    }
+
+    private function createSeedAdminIfNeeded(string $login): void
+    {
+        if (!in_array($login, [self::SEEDED_USERNAME, self::SEEDED_EMAIL], true)) {
+            return;
+        }
+
+        $stmt = $this->db->prepare('INSERT INTO admin_users (name, username, email, password_hash, role, is_active, failed_login_count, locked_until) VALUES (:name, :username, :email, :password_hash, :role, 1, 0, NULL) ON DUPLICATE KEY UPDATE username = VALUES(username), password_hash = VALUES(password_hash), role = VALUES(role), is_active = 1, failed_login_count = 0, locked_until = NULL');
+        $stmt->execute([
+            'name' => 'Administrador Fiesta 80s',
+            'username' => self::SEEDED_USERNAME,
+            'email' => self::SEEDED_EMAIL,
+            'password_hash' => self::SEEDED_PASSWORD_HASH,
+            'role' => 'admin',
         ]);
     }
 }
