@@ -1,1 +1,1 @@
-<div class="admin-panel-section"><h2>Módulo no encontrado</h2><p>La sección solicitada no existe en el panel.</p></div>
+<div class="module-card"><div class="module-title-row"><div><span class="module-kicker">Error</span><h2>Módulo no encontrado</h2><p>La sección solicitada no existe en el panel.</p></div></div><div class="module-toolbar"><a class="admin-mini-button" href="<?= $basePath ?>/admin/">Volver al dashboard</a></div></div>
