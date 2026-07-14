@@ -110,62 +110,98 @@ function qr_matrix(string $text): array
     return $m;
 }
 
+function pdf_text(float $x, float $y, int $size, string $text, string $color = '1 1 1'): string
+{
+    return $color . " rg\nBT\n/F1 " . $size . " Tf\n" . $x . ' ' . $y . " Td\n(" . pdf_escape($text) . ") Tj\nET\n";
+}
+
+function pdf_rect(float $x, float $y, float $w, float $h, string $color): string
+{
+    return $color . " rg\n" . sprintf('%.2F %.2F %.2F %.2F re f', $x, $y, $w, $h) . "\n";
+}
+
+function pdf_qr(float $x, float $y, float $cell, string $token): string
+{
+    $matrix = qr_matrix($token);
+    $out = pdf_rect($x - 10, $y - (count($matrix) * $cell) - 10, (count($matrix) * $cell) + 20, (count($matrix) * $cell) + 20, '1 1 1');
+    $out .= "0 0 0 rg\n";
+    foreach ($matrix as $row => $cols) foreach ($cols as $col => $dark) if ($dark) {
+        $out .= sprintf('%.2F %.2F %.2F %.2F re f\n', $x + ($col * $cell), $y - ($row * $cell), $cell, $cell);
+    }
+    return $out;
+}
+
+function build_ticket_page(array $reservation, array $ticket, int $number, int $total): string
+{
+    $ticketCode = (string)($ticket['ticket_code'] ?: ('Ticket #' . $ticket['id']));
+    $holder = (string)($ticket['holder_name'] ?: $reservation['full_name']);
+    $token = (string)($ticket['qr_token'] ?? '');
+    $content = '';
+    $content .= pdf_rect(0, 0, 595, 842, '0.031 0.051 0.102');
+    $content .= pdf_rect(0, 722, 595, 120, '0.047 0.071 0.145');
+    $content .= pdf_rect(0, 706, 595, 16, '1 0.31 0.72');
+    $content .= pdf_rect(0, 690, 595, 16, '0.22 0.87 1');
+    $content .= pdf_rect(0, 674, 595, 16, '1 0.81 0.36');
+    $content .= pdf_rect(36, 70, 523, 600, '0.97 0.98 1');
+    $content .= pdf_rect(36, 600, 523, 70, '0.09 0.13 0.24');
+    $content .= pdf_rect(52, 618, 5, 32, '1 0.81 0.36');
+    $content .= pdf_text(66, 638, 20, 'FIESTA OCHENTERA SOLIDARIA', '1 1 1');
+    $content .= pdf_text(66, 616, 10, 'Bingo · Karaoke · Tributo ABBA · Fiesta bailable', '0.82 0.89 1');
+    $content .= pdf_text(52, 556, 34, 'ENTRADA DIGITAL', '0.07 0.10 0.18');
+    $content .= pdf_text(52, 530, 12, 'Viernes 24 de julio de 2026 · Desde las 21:00 horas', '0.30 0.35 0.44');
+    $content .= pdf_text(52, 508, 12, 'Club La Casona · Los Ángeles', '0.30 0.35 0.44');
+    $content .= pdf_rect(52, 470, 300, 1.4, '0.86 0.89 0.94');
+    $content .= pdf_text(52, 440, 11, 'ASISTENTE', '0.58 0.63 0.70');
+    $content .= pdf_text(52, 418, 18, $holder, '0.07 0.10 0.18');
+    $content .= pdf_text(52, 382, 11, 'RESERVA', '0.58 0.63 0.70');
+    $content .= pdf_text(52, 360, 16, (string)$reservation['request_code'], '0.07 0.10 0.18');
+    $content .= pdf_text(52, 326, 11, 'CODIGO DE ENTRADA', '0.58 0.63 0.70');
+    $content .= pdf_text(52, 304, 16, $ticketCode, '0.07 0.10 0.18');
+    $content .= pdf_rect(52, 250, 250, 48, '1 0.81 0.36');
+    $content .= pdf_text(68, 268, 13, 'Valor incluido en reserva: $' . number_format((int)$reservation['total_amount'], 0, ',', '.'), '0.07 0.10 0.18');
+    if ($token !== '') $content .= pdf_qr(392, 520, 4.3, $token);
+    $content .= pdf_text(390, 365, 9, 'Escanea este QR en puerta', '0.07 0.10 0.18');
+    $content .= pdf_text(390, 348, 8, 'Valido una sola vez', '0.58 0.63 0.70');
+    $content .= pdf_rect(52, 120, 455, 70, '0.93 0.96 1');
+    $content .= pdf_text(70, 164, 10, 'IMPORTANTE', '0.07 0.10 0.18');
+    $content .= pdf_text(70, 144, 9, 'Presenta esta entrada digital al llegar. El QR sera validado por el scanner oficial.', '0.30 0.35 0.44');
+    $content .= pdf_text(70, 126, 9, 'Entrada ' . $number . ' de ' . $total . ' · Estado: ' . (string)$ticket['status'], '0.30 0.35 0.44');
+    return $content;
+}
+
 function build_tickets_pdf(array $reservation): string
 {
-    $lines = [
-        'FIESTA OCHENTERA SOLIDARIA',
-        'Entrada digital / Reserva ' . $reservation['request_code'],
-        'Cliente: ' . $reservation['full_name'],
-        'RUT: ' . $reservation['rut'],
-        'Email: ' . $reservation['email'],
-        'Personas: ' . $reservation['people_count'] . ' | Total: $' . number_format((int)$reservation['total_amount'], 0, ',', '.'),
-        'Estado: ' . $reservation['status'],
-        ' ',
-        'Tickets emitidos:',
-    ];
-    foreach (($reservation['tickets'] ?? []) as $ticket) {
-        $lines[] = '- ' . ($ticket['ticket_code'] ?: ('Ticket #' . $ticket['id'])) . ' | ' . $ticket['status'] . ' | ' . ($ticket['holder_name'] ?: $reservation['full_name']);
-    }
-    if (empty($reservation['tickets'])) $lines[] = 'Sin tickets emitidos todavía.';
-
-    $content = "BT\n/F1 18 Tf\n50 790 Td\n";
-    foreach ($lines as $index => $line) {
-        if ($index === 1) $content .= "/F1 13 Tf\n";
-        if ($index > 0) $content .= "0 -24 Td\n";
-        $content .= '(' . pdf_escape((string)$line) . ") Tj\n";
-    }
-    $content .= "ET\n";
-    $qrY = 650;
-    foreach (array_slice(($reservation['tickets'] ?? []), 0, 4) as $ticket) {
-        if (empty($ticket['qr_token'])) continue;
-        $matrix = qr_matrix((string)$ticket['qr_token']);
-        $cell = 3.2; $left = 400; $top = $qrY;
-        $content .= "0 0 0 rg\n";
-        foreach ($matrix as $row => $cols) foreach ($cols as $col => $dark) if ($dark) {
-            $x = $left + ($col * $cell); $y = $top - ($row * $cell);
-            $content .= sprintf('%.2F %.2F %.2F %.2F re f\n', $x, $y, $cell, $cell);
-        }
-        $content .= "BT\n/F1 8 Tf\n400 " . ($qrY - 102) . " Td\n(" . pdf_escape((string)($ticket['ticket_code'] ?? 'Ticket')) . ") Tj\nET\n";
-        $qrY -= 145;
-    }
-
+    $tickets = $reservation['tickets'] ?? [];
+    if (empty($tickets)) $tickets = [['id' => 0, 'ticket_code' => $reservation['request_code'], 'holder_name' => $reservation['full_name'], 'qr_token' => '', 'status' => 'pending']];
     $objects = [];
-    $objects[] = "<< /Type /Catalog /Pages 2 0 R >>";
-    $objects[] = "<< /Type /Pages /Kids [3 0 R] /Count 1 >>";
-    $objects[] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>";
-    $objects[] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
-    $objects[] = "<< /Length " . strlen($content) . " >>\nstream\n" . $content . "\nendstream";
+    $objects[1] = '';
+    $objects[2] = '';
+    $objects[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+    $kids = [];
+    $nextId = 4;
+    foreach (array_values($tickets) as $index => $ticket) {
+        $pageId = $nextId++;
+        $contentId = $nextId++;
+        $kids[] = $pageId . ' 0 R';
+        $stream = build_ticket_page($reservation, $ticket, $index + 1, count($tickets));
+        $objects[$pageId] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ' . $contentId . ' 0 R >>';
+        $objects[$contentId] = '<< /Length ' . strlen($stream) . " >>\nstream\n" . $stream . "\nendstream";
+    }
+    $objects[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+    $objects[2] = '<< /Type /Pages /Kids [' . implode(' ', $kids) . '] /Count ' . count($kids) . ' >>';
+    ksort($objects);
 
     $pdf = "%PDF-1.4\n";
     $offsets = [0];
-    foreach ($objects as $i => $object) {
-        $offsets[] = strlen($pdf);
-        $pdf .= ($i + 1) . " 0 obj\n" . $object . "\nendobj\n";
+    foreach ($objects as $id => $object) {
+        $offsets[$id] = strlen($pdf);
+        $pdf .= $id . " 0 obj\n" . $object . "\nendobj\n";
     }
     $xref = strlen($pdf);
-    $pdf .= "xref\n0 " . (count($objects) + 1) . "\n0000000000 65535 f \n";
-    for ($i = 1; $i <= count($objects); $i++) $pdf .= str_pad((string)$offsets[$i], 10, '0', STR_PAD_LEFT) . " 00000 n \n";
-    $pdf .= "trailer\n<< /Size " . (count($objects) + 1) . " /Root 1 0 R >>\nstartxref\n" . $xref . "\n%%EOF";
+    $max = max(array_keys($objects));
+    $pdf .= "xref\n0 " . ($max + 1) . "\n0000000000 65535 f \n";
+    for ($i = 1; $i <= $max; $i++) $pdf .= str_pad((string)($offsets[$i] ?? 0), 10, '0', STR_PAD_LEFT) . " 00000 n \n";
+    $pdf .= "trailer\n<< /Size " . ($max + 1) . " /Root 1 0 R >>\nstartxref\n" . $xref . "\n%%EOF";
     return $pdf;
 }
 
