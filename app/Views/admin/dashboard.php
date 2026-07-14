@@ -50,10 +50,8 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
           </a>
         <?php endforeach; ?>
       <?php endforeach; ?>
-      <a class="admin-nav-link" href="<?= $basePath ?>/admin/configuracion"><span class="nav-icon">◌</span><span>Widgets</span><em>NEW</em></a>
       <div class="admin-sidebar-title">EXTRAS</div>
-      <a class="admin-nav-link" href="<?= $basePath ?>/admin/configuracion"><span class="nav-icon">◇</span><span>Pages</span></a>
-      <a class="admin-nav-link" href="<?= $basePath ?>/admin/logout"><span class="nav-icon">▣</span><span>Salir</span></a>
+      <a class="admin-nav-link" href="<?= $basePath ?>/admin/logout"><span class="nav-icon">▣</span><span>Cerrar sesión</span></a>
     </div>
     <button class="admin-sidebar-collapse" type="button" aria-label="Contraer menú">‹</button>
   </aside>
@@ -61,7 +59,7 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   <div class="admin-main">
     <header class="admin-header">
       <nav class="admin-navbar">
-        <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/">Dashboard</a><a href="<?= $basePath ?>/admin/reservas">Users</a><a href="<?= $basePath ?>/admin/configuracion">Settings</a></div>
+        <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/">Dashboard</a><a href="<?= $basePath ?>/admin/reservas">Reservas</a><a href="<?= $basePath ?>/admin/entradas">Entradas</a><a href="<?= $basePath ?>/admin/configuracion">Settings</a></div>
         <div class="admin-userbar"><span class="connection-status" data-connection-status>En línea</span><span class="top-icon">♧</span><span class="top-icon">☷</span><span class="top-icon">⌑</span><span class="admin-avatar"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"></span></div>
       </nav>
       <div class="admin-breadcrumb"><a href="<?= $basePath ?>/admin/">Home</a><span>/</span><strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong></div>
