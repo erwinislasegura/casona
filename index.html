@@ -699,7 +699,7 @@
           </a>
         </aside>
 
-        <form class="form-card" id="reservationForm" action="/reservas/crear.php" method="post" enctype="multipart/form-data" novalidate>
+        <form class="form-card" id="reservationForm" action="reservas/crear.php" method="post" enctype="multipart/form-data" novalidate>
           <div class="form-head">
             <div>
               <h3>Formulario de reserva</h3>
@@ -957,7 +957,9 @@
         submitButton.textContent = 'Enviando solicitud...';
 
         try {
-          const response = await fetch(form.action, { method: 'POST', body: new FormData(form) });
+          const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } });
+          const contentType = response.headers.get('content-type') || '';
+          if (!contentType.includes('application/json')) throw new Error('El servidor no respondió JSON. Revisa que la ruta del formulario exista dentro de /casona/reservas/crear.php.');
           const result = await response.json();
           if (!response.ok || !result.ok) throw new Error(result.message || 'No fue posible registrar la solicitud.');
 
