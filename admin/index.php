@@ -120,6 +120,35 @@ function pdf_rect(float $x, float $y, float $w, float $h, string $color): string
     return $color . " rg\n" . sprintf('%.2F %.2F %.2F %.2F re f', $x, $y, $w, $h) . "\n";
 }
 
+
+function pdf_load_image(string $path): ?array
+{
+    if (!is_file($path)) return null;
+    $info = getimagesize($path);
+    if (!$info) return null;
+    $mime = $info['mime'] ?? '';
+    if ($mime === 'image/jpeg') {
+        return ['data' => file_get_contents($path), 'width' => (int)$info[0], 'height' => (int)$info[1]];
+    }
+    if (!function_exists('imagejpeg')) return null;
+    $image = match ($mime) {
+        'image/png' => imagecreatefrompng($path),
+        'image/webp' => function_exists('imagecreatefromwebp') ? imagecreatefromwebp($path) : false,
+        default => false,
+    };
+    if (!$image) return null;
+    ob_start();
+    imagejpeg($image, null, 88);
+    $data = ob_get_clean();
+    imagedestroy($image);
+    return ['data' => $data, 'width' => (int)$info[0], 'height' => (int)$info[1]];
+}
+
+function pdf_draw_image(string $name, float $x, float $y, float $w, float $h): string
+{
+    return "q\n" . $w . " 0 0 " . $h . " " . $x . " " . $y . " cm\n/" . $name . " Do\nQ\n";
+}
+
 function pdf_qr(float $x, float $y, float $cell, string $token): string
 {
     $matrix = qr_matrix($token);
@@ -131,7 +160,7 @@ function pdf_qr(float $x, float $y, float $cell, string $token): string
     return $out;
 }
 
-function build_ticket_page(array $reservation, array $ticket, int $number, int $total, bool $hasHero): string
+function build_ticket_page(array $reservation, array $ticket, int $number, int $total, array $imageNames): string
 {
     $ticketCode = (string)($ticket['ticket_code'] ?: ('Ticket #' . $ticket['id']));
     $holder = (string)($ticket['holder_name'] ?: $reservation['full_name']);
@@ -142,17 +171,14 @@ function build_ticket_page(array $reservation, array $ticket, int $number, int $
     $content .= pdf_rect(24, 30, 547, 782, '0.045 0.065 0.125');
 
     // Header logos and title
-    $content .= pdf_rect(48, 760, 42, 42, '0.95 1 0.92');
-    $content .= pdf_rect(100, 760, 42, 42, '1 0.62 0.16');
-    $content .= pdf_rect(152, 760, 42, 42, '0.93 0.94 0.96');
-    $content .= pdf_text(57, 777, 8, 'SAN', '0.05 0.10 0.08');
-    $content .= pdf_text(108, 777, 8, 'CICLON', '0.05 0.08 0.14');
-    $content .= pdf_text(160, 777, 8, 'CASONA', '0.05 0.08 0.14');
+    if (isset($imageNames['LogoSan'])) $content .= pdf_draw_image($imageNames['LogoSan'], 48, 760, 42, 42); else $content .= pdf_rect(48, 760, 42, 42, '0.95 1 0.92');
+    if (isset($imageNames['LogoCiclon'])) $content .= pdf_draw_image($imageNames['LogoCiclon'], 100, 760, 42, 42); else $content .= pdf_rect(100, 760, 42, 42, '1 0.62 0.16');
+    if (isset($imageNames['LogoCasona'])) $content .= pdf_draw_image($imageNames['LogoCasona'], 152, 760, 42, 42); else $content .= pdf_rect(152, 760, 42, 42, '0.93 0.94 0.96');
     $content .= pdf_text(404, 786, 9, 'ACCESO OFICIAL', '1 0.78 0.20');
     $content .= pdf_text(340, 762, 24, 'ENTRADA DIGITAL', '1 1 1');
 
     // Hero image block
-    if ($hasHero) $content .= "q\n547 0 0 185 24 550 cm\n/Hero Do\nQ\n";
+    if (isset($imageNames['Hero'])) $content .= pdf_draw_image($imageNames['Hero'], 24, 550, 547, 185);
     else $content .= pdf_rect(24, 550, 547, 185, '0.11 0.15 0.28');
     $content .= pdf_rect(24, 550, 547, 65, '0.025 0.035 0.075');
     $content .= pdf_text(42, 590, 9, 'BINGO · KARAOKE · TRIBUTO · FIESTA BAILABLE', '1 0.78 0.20');
@@ -209,24 +235,34 @@ function build_tickets_pdf(array $reservation): string
 {
     $tickets = $reservation['tickets'] ?? [];
     if (empty($tickets)) $tickets = [['id' => 0, 'ticket_code' => $reservation['request_code'] . '-GRUPO', 'holder_name' => $reservation['full_name'], 'qr_token' => '', 'status' => 'pending']];
-    $heroPath = dirname(__DIR__) . '/assets/abba-cta.jpg';
-    $heroImage = is_file($heroPath) ? file_get_contents($heroPath) : null;
-    $heroSize = $heroImage !== null ? getimagesize($heroPath) : null;
+    $imagePaths = [
+        'Hero' => dirname(__DIR__) . '/assets/abba-cta.jpg',
+        'LogoSan' => dirname(__DIR__) . '/assets/logo-san-gabriel.png',
+        'LogoCiclon' => dirname(__DIR__) . '/assets/logo-ciclon.jpeg',
+        'LogoCasona' => dirname(__DIR__) . '/assets/logo-la-casona.jpeg',
+    ];
     $objects = [];
     $objects[1] = '';
     $objects[2] = '';
     $objects[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
-    $kids = [];
-    $nextId = $heroImage !== null ? 5 : 4;
-    if ($heroImage !== null && $heroSize) {
-        $objects[4] = '<< /Type /XObject /Subtype /Image /Width ' . (int)$heroSize[0] . ' /Height ' . (int)$heroSize[1] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' . strlen($heroImage) . " >>\nstream\n" . $heroImage . "\nendstream";
+    $imageNames = [];
+    $nextId = 4;
+    foreach ($imagePaths as $name => $path) {
+        $image = pdf_load_image($path);
+        if (!$image || empty($image['data'])) continue;
+        $objects[$nextId] = '<< /Type /XObject /Subtype /Image /Width ' . $image['width'] . ' /Height ' . $image['height'] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' . strlen($image['data']) . " >>\nstream\n" . $image['data'] . "\nendstream";
+        $imageNames[$name] = 'Im' . $nextId;
+        $nextId++;
     }
+    $kids = [];
     foreach (array_values($tickets) as $index => $ticket) {
         $pageId = $nextId++;
         $contentId = $nextId++;
         $kids[] = $pageId . ' 0 R';
-        $stream = build_ticket_page($reservation, $ticket, $index + 1, count($tickets), $heroImage !== null);
-        $xObject = $heroImage !== null ? ' /XObject << /Hero 4 0 R >>' : '';
+        $stream = build_ticket_page($reservation, $ticket, $index + 1, count($tickets), $imageNames);
+        $xObjectItems = [];
+        foreach ($imageNames as $imageName) { $id = (int)substr($imageName, 2); $xObjectItems[] = '/' . $imageName . ' ' . $id . ' 0 R'; }
+        $xObject = $xObjectItems ? ' /XObject << ' . implode(' ', $xObjectItems) . ' >>' : '';
         $objects[$pageId] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >>' . $xObject . ' >> /Contents ' . $contentId . ' 0 R >>';
         $objects[$contentId] = '<< /Length ' . strlen($stream) . " >>\nstream\n" . $stream . "\nendstream";
     }
