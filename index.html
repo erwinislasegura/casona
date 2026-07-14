@@ -699,7 +699,7 @@
           </a>
         </aside>
 
-        <form class="form-card" id="reservationForm" novalidate>
+        <form class="form-card" id="reservationForm" action="reservas/crear.php" method="post" enctype="multipart/form-data" novalidate>
           <div class="form-head">
             <div>
               <h3>Formulario de reserva</h3>
@@ -945,23 +945,43 @@
         return data;
       }
 
-      form.addEventListener('submit', (event) => {
+      form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!validate()) {
           form.querySelector('.error:not(:empty)')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           return;
         }
 
-        const code = createRequestCode();
-        localStorage.setItem('fiestaOchenteraCodigo', code);
-        const request = saveDraft('pendiente_de_revision');
-        request.code = code;
-        localStorage.setItem('fiestaOchenteraSolicitud', JSON.stringify(request));
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.textContent = 'Enviando solicitud...';
 
-        $('formStatus').innerHTML = `<strong>Solicitud preparada para revisión · ${code}</strong>
-          Tus datos y el nombre del comprobante quedaron guardados en este dispositivo. Cuando el sistema de recepción esté conectado y la solicitud sea aprobada, la entrada virtual deberá enviarse a <b>${request.email}</b>.`;
-        $('formStatus').classList.add('show');
-        $('formStatus').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        try {
+          const response = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'Accept': 'application/json' } });
+          const contentType = response.headers.get('content-type') || '';
+          if (!contentType.includes('application/json')) throw new Error('El servidor no respondió JSON. Revisa que la ruta del formulario exista dentro de /casona/reservas/crear.php.');
+          const result = await response.json();
+          if (!response.ok || !result.ok) throw new Error(result.message || 'No fue posible registrar la solicitud.');
+
+          localStorage.setItem('fiestaOchenteraCodigo', result.code);
+          const request = saveDraft('pendiente_de_revision');
+          request.code = result.code;
+          localStorage.setItem('fiestaOchenteraSolicitud', JSON.stringify(request));
+
+          $('formStatus').innerHTML = `<strong>Solicitud registrada · ${result.code}</strong>
+            ${result.message} Cuando sea aprobada, la entrada virtual será enviada a <b>${request.email}</b>.`;
+          $('formStatus').classList.add('show');
+          form.reset();
+          $('receiptPreview').classList.remove('show');
+          updateTotal();
+        } catch (error) {
+          $('formStatus').innerHTML = `<strong>No pudimos registrar la solicitud</strong>${error.message}`;
+          $('formStatus').classList.add('show');
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Enviar solicitud de reserva';
+          $('formStatus').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       });
 
       $('saveData').addEventListener('click', () => {

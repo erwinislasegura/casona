@@ -43,6 +43,18 @@ try {
             header('Location: ' . app_url('/admin/reservas'));
             exit;
         }
+        if ($action === 'edit_reserva') {
+            $panelRepository->updateReservaDetails((int)($_POST['reserva_id'] ?? 0), $_POST);
+            $_SESSION['admin_flash'] = 'Datos de la reserva actualizados correctamente.';
+            header('Location: ' . app_url('/admin/reservas'));
+            exit;
+        }
+        if ($action === 'delete_reserva') {
+            $panelRepository->deleteReserva((int)($_POST['reserva_id'] ?? 0));
+            $_SESSION['admin_flash'] = 'Reserva eliminada correctamente.';
+            header('Location: ' . app_url('/admin/reservas'));
+            exit;
+        }
         if ($action === 'save_settings') {
             $panelRepository->saveSettings($_POST);
             $_SESSION['admin_flash'] = 'Configuración guardada correctamente.';
