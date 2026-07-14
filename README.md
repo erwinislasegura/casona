@@ -124,3 +124,13 @@ Se incluyeron reglas `.htaccess` y wrappers en `public/admin/` para cubrir ambos
 - Los assets visuales existentes se exponen en `public/assets/` como enlaces simbólicos a `assets/`, sin agregar binarios nuevos.
 
 En Apache debe estar habilitado `mod_rewrite` y, si se usa `.htaccess`, `AllowOverride All` para este directorio.
+
+### CSS/JS cuando el proyecto vive en `/casona`
+
+Las vistas calculan automáticamente el prefijo del proyecto (`/casona`) desde `SCRIPT_NAME` y generan URLs como `/casona/assets/css/login.css`. Para que funcionen tanto con DocumentRoot en la raíz como en `public/`, se agregaron enlaces simbólicos:
+
+- `assets/css` → `public/assets/css`
+- `assets/js` → `public/assets/js`
+- `manifest.webmanifest`, `service-worker.js` y `offline.html` → sus archivos en `public/`
+
+Así `/casona/admin/login/` carga la vista y también sus CSS/JS.

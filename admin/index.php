@@ -1,7 +1,9 @@
 <?php
 session_start();
+require_once __DIR__ . '/../config/paths.php';
+$basePath = app_base_path();
 if (empty($_SESSION['admin_user_id'])) {
-    header('Location: /admin/login');
+    header('Location: ' . app_url('/admin/login'));
     exit;
 }
 $userName = $_SESSION['admin_user_name'] ?? 'Administrador';

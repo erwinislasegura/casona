@@ -47,7 +47,7 @@ body.login-body {
   z-index: -2;
   background:
     linear-gradient(180deg, rgba(7, 11, 21, .25), rgba(7, 11, 21, .78)),
-    url('/assets/abba-color-1.png') center 18% / cover no-repeat;
+    url('../abba-color-1.png') center 18% / cover no-repeat;
 }
 
 .login-visual::after {
