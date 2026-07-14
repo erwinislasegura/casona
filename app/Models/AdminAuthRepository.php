@@ -15,8 +15,11 @@ final class AdminAuthRepository
         $this->ensureUsernameSupport();
         $this->createSeedAdminIfNeeded($login);
 
-        $stmt = $this->db->prepare('SELECT * FROM admin_users WHERE (email = :login OR username = :login) AND is_active = 1 LIMIT 1');
-        $stmt->execute(['login' => $login]);
+        $stmt = $this->db->prepare('SELECT * FROM admin_users WHERE (email = :email_login OR username = :username_login) AND is_active = 1 LIMIT 1');
+        $stmt->execute([
+            'email_login' => $login,
+            'username_login' => $login,
+        ]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
     }
