@@ -2,6 +2,7 @@
 $basePath = $basePath ?? '';
 $appVersion = $appVersion ?? '1.0.0';
 $error = $error ?? '';
+$redirectTo = $redirectTo ?? '/admin/';
 ?>
 <!doctype html>
 <html lang="es">
@@ -15,82 +16,41 @@ $error = $error ?? '';
   <link rel="manifest" href="<?= $basePath ?>/manifest.webmanifest">
   <link rel="apple-touch-icon" href="<?= $basePath ?>/assets/logo-ciclon.jpeg">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4F0S3pHCFWhT6+K6nvctHf1Ra9sENBo0LRn5q+8" crossorigin="anonymous">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css">
-  <title>Panel de administración · Fiesta Ochentera Solidaria</title>
+  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css?v=<?= rawurlencode($appVersion) ?>">
+  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css?v=<?= rawurlencode($appVersion) ?>">
+  <title>Acceso administrador · Fiesta Ochentera Solidaria</title>
 </head>
-<body class="login-body auth-page">
-  <main class="auth-wrap container">
-    <section class="auth-card auth-card-compact mx-auto" aria-label="Acceso administrativo">
-      <div class="auth-card-glow"></div>
-      <div class="auth-header">
-        <div class="auth-logos" aria-label="Organizadores">
-          <span class="logo-badge"><img src="<?= $basePath ?>/assets/logo-san-gabriel.png" alt="San Gabriel"></span>
-          <span class="logo-badge logo-main"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="Ciclón Producciones"></span>
-          <span class="logo-badge"><img src="<?= $basePath ?>/assets/logo-la-casona.jpeg" alt="Club La Casona"></span>
-        </div>
-        <span class="kicker">Acceso restringido</span>
-        <h1>Panel de administración</h1>
-        <p>Fiesta Ochentera Solidaria</p>
+<body class="login-body auth-page public-visual-line">
+  <main class="auth-shell container">
+    <section class="auth-panel" aria-label="Acceso administrativo">
+      <div class="auth-brand-strip">
+        <span class="logo-badge logo-main"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="Ciclón Producciones"></span>
+        <div><span class="kicker">Ciclón Producciones</span><h1>Panel administrativo</h1><p>Fiesta Ochentera Solidaria</p></div>
       </div>
 
-      <div class="auth-status-row">
-        <span class="connection-status" data-connection-status>En línea</span>
-        <span class="auth-mini-note">Operación segura</span>
-      </div>
+      <div class="auth-status-row clean"><span class="connection-status" data-connection-status>En línea</span><span class="auth-mini-note">Acceso seguro</span></div>
 
-      <div class="alert alert-danger auth-alert <?= $error ? '' : 'invisible' ?>" role="alert" aria-live="polite">
-        <?= $error ? htmlspecialchars($error, ENT_QUOTES, 'UTF-8') : 'Mensaje del sistema' ?>
-      </div>
+      <div class="alert alert-danger auth-alert <?= $error ? '' : 'd-none' ?>" role="alert" aria-live="polite"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
 
-      <form method="post" action="<?= $basePath ?>/admin/login/" autocomplete="on" class="compact-login-form">
+      <form method="post" action="<?= $basePath ?>/admin/login/" autocomplete="on" class="compact-login-form auth-form-grid">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '', ENT_QUOTES, 'UTF-8') ?>">
-        <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectTo ?? ($basePath . '/admin/'), ENT_QUOTES, 'UTF-8') ?>">
-
-        <div class="mb-2">
-          <label for="email" class="form-label">Usuario</label>
-          <input id="email" name="email" type="text" class="form-control" inputmode="text" autocomplete="username" placeholder="adminfiesta" required>
-        </div>
-
-        <div class="mb-2">
-          <label for="password" class="form-label">Contraseña</label>
-          <div class="input-group">
-            <input id="password" name="password" type="password" class="form-control" autocomplete="current-password" placeholder="••••••••" required>
-            <button class="btn btn-outline-light btn-toggle-password" type="button" data-toggle-password>Mostrar</button>
-          </div>
-        </div>
-
-        <div class="auth-options">
-          <label class="form-check m-0"><input class="form-check-input" type="checkbox" name="remember" value="1"> <span class="form-check-label">Recordarme</span></label>
-          <a class="link" href="<?= $basePath ?>/admin/forgot-password/">¿Olvidaste tu contraseña?</a>
-        </div>
-
-        <button class="btn auth-submit w-100" type="submit" data-requires-online>Ingresar al panel</button>
-        <div class="processing small mt-2">Validando credenciales…</div>
+        <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectTo, ENT_QUOTES, 'UTF-8') ?>">
+        <label><span>Usuario</span><input id="email" name="email" type="text" class="form-control" inputmode="text" autocomplete="username" placeholder="adminfiesta" required autofocus></label>
+        <label><span>Contraseña</span><div class="input-group"><input id="password" name="password" type="password" class="form-control" autocomplete="current-password" placeholder="••••••••" required><button class="btn btn-outline-light btn-toggle-password" type="button" data-toggle-password>Mostrar</button></div></label>
+        <div class="auth-options"><label class="form-check m-0"><input class="form-check-input" type="checkbox" name="remember" value="1"> <span class="form-check-label">Recordarme</span></label><a class="link" href="<?= $basePath ?>/admin/forgot-password/">Recuperar acceso</a></div>
+        <button class="btn auth-submit w-100" type="submit" data-requires-online>Ingresar</button>
+        <div class="processing small">Validando credenciales…</div>
       </form>
 
-      <div class="auth-links">
-        <a class="link" href="<?= $basePath ?>/">Volver al sitio público</a>
-        <button type="button" class="pwa-button" data-install-pwa>Instalar aplicación</button>
-      </div>
-      <div class="ios-install-hint" data-ios-install-hint>Para instalar, abre el menú Compartir y selecciona Agregar a pantalla de inicio.</div>
-
-      <footer class="login-footer">v<?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?> · Acceso auditado · No compartas tus credenciales.</footer>
+      <footer class="auth-footer"><a class="link" href="<?= $basePath ?>/">Volver al sitio público</a><span>v<?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?></span></footer>
     </section>
   </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
-  <script src="<?= $basePath ?>/assets/js/install-pwa.js" defer></script>
-  <script src="<?= $basePath ?>/assets/js/service-worker-register.js" defer></script>
-  <script src="<?= $basePath ?>/assets/js/app-update.js" defer></script>
-  <script src="<?= $basePath ?>/assets/js/connection-status.js" defer></script>
+  <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= $basePath ?>/assets/js/app-update.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= $basePath ?>/assets/js/connection-status.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script>
-    document.querySelector('[data-toggle-password]')?.addEventListener('click', (event) => {
-      const input = document.getElementById('password');
-      const show = input.type === 'password';
-      input.type = show ? 'text' : 'password';
-      event.currentTarget.textContent = show ? 'Ocultar' : 'Mostrar';
-    });
+    document.querySelector('[data-toggle-password]')?.addEventListener('click', (event) => { const input = document.getElementById('password'); const show = input.type === 'password'; input.type = show ? 'text' : 'password'; event.currentTarget.textContent = show ? 'Ocultar' : 'Mostrar'; });
     document.querySelector('form')?.addEventListener('submit', (event) => event.currentTarget.classList.add('is-processing'));
   </script>
 </body>

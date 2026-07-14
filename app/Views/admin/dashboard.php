@@ -10,8 +10,9 @@ $modules = [
     'entradas' => ['title' => 'Entradas', 'description' => 'Revisa y administra las entradas emitidas.'],
     'configuracion' => ['title' => 'Configuración', 'description' => 'Ajustes generales del evento y del panel.'],
 ];
-$currentModule = $modules[$module] ?? $modules['inicio'];
+$currentModule = $modules[$module] ?? ['title' => 'Módulo no encontrado', 'description' => 'La ruta solicitada no está disponible.'];
 $moduleTitle = $moduleTitle ?? $currentModule['title'];
+$moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $module : 'not-found') . '.php';
 ?>
 <!doctype html>
 <html lang="es">
@@ -70,12 +71,7 @@ $moduleTitle = $moduleTitle ?? $currentModule['title'];
         <a class="admin-action" href="<?= $basePath ?>/admin/configuracion"><strong>Configuración</strong><span>Ajustes del evento</span></a>
       </div>
 
-      <?php if ($module !== 'inicio'): ?>
-        <div class="admin-placeholder">
-          <strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong>
-          <p>La ruta ya responde correctamente. Este bloque queda preparado para conectar la funcionalidad específica sin romper navegación ni estilos.</p>
-        </div>
-      <?php endif; ?>
+      <?php require $moduleView; ?>
     </section>
   </main>
 

@@ -24,9 +24,4 @@ if ($module === 'logout') {
     exit;
 }
 
-$allowedModules = ['inicio', 'reservas', 'scanner', 'entradas', 'configuracion'];
-if (!in_array($module, $allowedModules, true)) {
-    $module = 'inicio';
-}
-
 require __DIR__ . '/../app/Views/admin/dashboard.php';
