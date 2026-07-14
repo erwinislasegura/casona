@@ -114,3 +114,13 @@ Para que el login cargue sin depender de reglas externas de servidor, se agregar
 - `/admin/forgot-password/` y `/admin/reset-password/` cargan sus vistas compactas.
 
 La conexión MySQL quedó separada en `config/database.php`; las vistas no crean conexiones directas. El controlador de login usa esa fábrica solo al recibir POST, así la pantalla de acceso puede cargar aunque la base de datos esté temporalmente fuera de servicio.
+
+### Corrección para `/admin/login` en Apache/XAMPP
+
+Se incluyeron reglas `.htaccess` y wrappers en `public/admin/` para cubrir ambos despliegues comunes:
+
+- Si el `DocumentRoot` apunta a la raíz del proyecto, `/admin/login` se resuelve con `admin/login/index.php`.
+- Si el `DocumentRoot` apunta a `public/`, `/admin/login` se resuelve con `public/admin/login/index.php`, que carga la misma ruta real.
+- Los assets visuales existentes se exponen en `public/assets/` como enlaces simbólicos a `assets/`, sin agregar binarios nuevos.
+
+En Apache debe estar habilitado `mod_rewrite` y, si se usa `.htaccess`, `AllowOverride All` para este directorio.
