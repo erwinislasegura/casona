@@ -97,3 +97,10 @@ DB_PASSWORD=secret
 ```
 
 `app/Models/AdminAuthRepository.php` contiene operaciones PDO mínimas para buscar usuarios activos, registrar intentos, marcar login exitoso, aplicar bloqueo temporal y almacenar tokens “Recordarme” con hash.
+
+### Flujo de acceso administrador
+
+- El footer público muestra “Acceso administrador” y abre `/admin/login`.
+- El formulario de login envía `redirect_to=/admin` para que, después de autenticar, el controlador redirija al panel.
+- `app/Controllers/AdminAuthController.php` valida credenciales con MySQL, regenera la sesión, registra el intento y devuelve una ruta segura de redirección.
+- `app/Views/admin/dashboard.php` es la vista compacta Bootstrap del panel inicial con accesos a solicitudes, escáner, entradas y configuración.

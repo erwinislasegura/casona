@@ -59,6 +59,7 @@ $error = $error ?? '';
 
             <form method="post" action="/admin/login" autocomplete="on" class="compact-login-form">
               <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '', ENT_QUOTES, 'UTF-8') ?>">
+              <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectTo ?? '/admin', ENT_QUOTES, 'UTF-8') ?>">
 
               <div class="mb-2">
                 <label for="email" class="form-label small fw-bold mb-1">Correo electrónico</label>
