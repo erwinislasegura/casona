@@ -51,7 +51,7 @@ final class AdminPanelRepository
 
     public function reservas(): array
     {
-        return $this->db->query("SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, created_at FROM reservas ORDER BY created_at DESC LIMIT 50")->fetchAll();
+        return $this->db->query("SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas ORDER BY created_at DESC LIMIT 50")->fetchAll();
     }
 
     public function entradas(): array
@@ -67,6 +67,34 @@ final class AdminPanelRepository
             $settings[$row['setting_key']] = $row['setting_value'];
         }
         return $settings + ['event_name' => 'Fiesta Ochentera Solidaria', 'sales_mode' => 'Reservas con confirmación', 'notifications' => 'Activas'];
+    }
+
+
+    public function reservaReceipt(int $id): ?array
+    {
+        $stmt = $this->db->prepare('SELECT receipt_path, receipt_name, receipt_mime, receipt_blob FROM reservas WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        if (!$row) return null;
+        if (!empty($row['receipt_blob'])) {
+            return [
+                'name' => $row['receipt_name'] ?: 'comprobante',
+                'mime' => $row['receipt_mime'] ?: 'application/octet-stream',
+                'content' => $row['receipt_blob'],
+            ];
+        }
+        if (!empty($row['receipt_path'])) {
+            foreach ([dirname(__DIR__, 2) . '/public' . $row['receipt_path'], dirname(__DIR__, 2) . $row['receipt_path']] as $file) {
+                if (is_file($file)) {
+                    return [
+                        'name' => basename($file),
+                        'mime' => mime_content_type($file) ?: 'application/octet-stream',
+                        'content' => file_get_contents($file),
+                    ];
+                }
+            }
+        }
+        return null;
     }
 
     public function updateReservaStatus(int $id, string $status): void

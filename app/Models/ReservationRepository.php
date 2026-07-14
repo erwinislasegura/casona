@@ -19,12 +19,16 @@ final class ReservationRepository
             total_amount INT UNSIGNED NOT NULL,
             status ENUM('pending','approved','rejected','cancelled') NOT NULL DEFAULT 'pending',
             receipt_path VARCHAR(255) NULL,
+            receipt_name VARCHAR(190) NULL,
+            receipt_mime VARCHAR(120) NULL,
+            receipt_blob LONGBLOB NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             UNIQUE KEY uq_reservas_request_code (request_code),
             KEY idx_reservas_status_created (status, created_at),
             KEY idx_reservas_email (email)
         ) ENGINE=InnoDB");
+        $this->ensureReceiptColumns();
         $this->db->exec("CREATE TABLE IF NOT EXISTS entradas (
             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             ticket_code VARCHAR(40) NULL,
@@ -48,9 +52,9 @@ final class ReservationRepository
         $this->ensureReservationTables();
         $data = $this->validate($input, $receipt);
         $data['request_code'] = $this->newRequestCode();
-        $data['receipt_path'] = $receipt ? $this->storeReceipt($receipt, $data['request_code']) : null;
+        $storedReceipt = $receipt ? $this->storeReceipt($receipt, $data['request_code']) : ['path' => null, 'name' => null, 'mime' => null, 'blob' => null];
 
-        $stmt = $this->db->prepare('INSERT INTO reservas (request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path) VALUES (:request_code, :full_name, :rut, :phone, :email, :people_count, :total_amount, :status, :receipt_path)');
+        $stmt = $this->db->prepare('INSERT INTO reservas (request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, receipt_mime, receipt_blob) VALUES (:request_code, :full_name, :rut, :phone, :email, :people_count, :total_amount, :status, :receipt_path, :receipt_name, :receipt_mime, :receipt_blob)');
         $stmt->execute([
             'request_code' => $data['request_code'],
             'full_name' => $data['full_name'],
@@ -60,8 +64,12 @@ final class ReservationRepository
             'people_count' => $data['people_count'],
             'total_amount' => $data['total_amount'],
             'status' => 'pending',
-            'receipt_path' => $data['receipt_path'],
+            'receipt_path' => $storedReceipt['path'],
+            'receipt_name' => $storedReceipt['name'],
+            'receipt_mime' => $storedReceipt['mime'],
+            'receipt_blob' => $storedReceipt['blob'],
         ]);
+        $data['receipt_path'] = $storedReceipt['path'];
 
         return $data;
     }
@@ -101,23 +109,45 @@ final class ReservationRepository
         return $code;
     }
 
-    private function storeReceipt(array $receipt, string $code): string
+    private function ensureReceiptColumns(): void
+    {
+        foreach ([
+            'receipt_name' => 'ALTER TABLE reservas ADD COLUMN receipt_name VARCHAR(190) NULL AFTER receipt_path',
+            'receipt_mime' => 'ALTER TABLE reservas ADD COLUMN receipt_mime VARCHAR(120) NULL AFTER receipt_name',
+            'receipt_blob' => 'ALTER TABLE reservas ADD COLUMN receipt_blob LONGBLOB NULL AFTER receipt_mime',
+        ] as $column => $sql) {
+            try {
+                $this->db->query('SELECT ' . $column . ' FROM reservas LIMIT 1');
+            } catch (Throwable) {
+                $this->db->exec($sql);
+            }
+        }
+    }
+
+    private function storeReceipt(array $receipt, string $code): array
     {
         $extension = strtolower(pathinfo((string)$receipt['name'], PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'webp', 'pdf'];
         if (!in_array($extension, $allowed, true)) throw new InvalidArgumentException('El comprobante debe ser imagen o PDF.');
 
-        $publicDir = dirname(__DIR__, 2) . '/public/storage/comprobantes';
-        if (!is_dir($publicDir)) mkdir($publicDir, 0775, true);
+        $mime = match ($extension) {
+            'pdf' => 'application/pdf',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            default => 'image/jpeg',
+        };
+        $blob = file_get_contents((string)$receipt['tmp_name']);
+        if ($blob === false) throw new RuntimeException('No fue posible leer el comprobante.');
+
         $fileName = $code . '-' . bin2hex(random_bytes(4)) . '.' . $extension;
-        $target = $publicDir . '/' . $fileName;
-        if (!move_uploaded_file((string)$receipt['tmp_name'], $target)) throw new RuntimeException('No fue posible guardar el comprobante.');
+        $path = null;
+        foreach ([dirname(__DIR__, 2) . '/public/storage/comprobantes', dirname(__DIR__, 2) . '/storage/comprobantes'] as $dir) {
+            if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) continue;
+            if (!is_writable($dir)) continue;
+            $target = $dir . '/' . $fileName;
+            if (@copy((string)$receipt['tmp_name'], $target)) $path = '/storage/comprobantes/' . $fileName;
+        }
 
-        $rootDir = dirname(__DIR__, 2) . '/storage/comprobantes';
-        if (!is_dir($rootDir)) mkdir($rootDir, 0775, true);
-        $rootTarget = $rootDir . '/' . $fileName;
-        if ($rootTarget !== $target) @copy($target, $rootTarget);
-
-        return '/storage/comprobantes/' . $fileName;
+        return ['path' => $path, 'name' => (string)$receipt['name'], 'mime' => $mime, 'blob' => $blob];
     }
 }

@@ -36,7 +36,7 @@ foreach (($reservas ?? []) as $item) {
         <td><?= htmlspecialchars((string)($reserva['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?><small><?= htmlspecialchars((string)($reserva['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
         <td><?= (int)$reserva['people_count'] ?></td>
         <td>$<?= number_format((int)$reserva['total_amount'], 0, ',', '.') ?></td>
-        <td><?php if (!empty($reserva['receipt_path'])): ?><a class="receipt-link" href="<?= htmlspecialchars($basePath . $reserva['receipt_path'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">Ver comprobante</a><?php else: ?>—<?php endif; ?></td>
+        <td><?php if (!empty($reserva['receipt_path'])): ?><a class="receipt-link" href="<?= htmlspecialchars($basePath . $reserva['receipt_path'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">Ver comprobante</a><?php elseif (!empty($reserva['receipt_name'])): ?><a class="receipt-link" href="<?= $basePath ?>/admin/comprobante?id=<?= (int)$reserva['id'] ?>" target="_blank" rel="noopener">Ver comprobante</a><?php else: ?>—<?php endif; ?></td>
         <td><span class="status-pill is-<?= htmlspecialchars($reserva['status'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($reserva['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
         <td><div class="reservation-actions">
           <form method="post"><input type="hidden" name="action" value="update_reserva"><input type="hidden" name="reserva_id" value="<?= (int)$reserva['id'] ?>"><input type="hidden" name="status" value="approved"><button class="action-button is-approve" type="submit">Aprobar</button></form>

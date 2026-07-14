@@ -35,6 +35,19 @@ try {
     $factory = require __DIR__ . '/../config/database.php';
     $panelRepository = new AdminPanelRepository($factory());
 
+    if ($module === 'comprobante') {
+        $receipt = $panelRepository->reservaReceipt((int)($_GET['id'] ?? 0));
+        if (!$receipt) {
+            http_response_code(404);
+            echo 'Comprobante no encontrado.';
+            exit;
+        }
+        header('Content-Type: ' . $receipt['mime']);
+        header('Content-Disposition: inline; filename="' . addslashes($receipt['name']) . '"');
+        echo $receipt['content'];
+        exit;
+    }
+
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $action = (string)($_POST['action'] ?? '');
         if ($action === 'update_reserva') {
