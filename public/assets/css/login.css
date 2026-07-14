@@ -612,3 +612,7 @@ body.coreui-admin {
   .coreui-admin .scanner-view { grid-template-columns: 1fr; }
   .coreui-admin .module-card { padding: .85rem; }
 }
+.coreui-admin .admin-table td small { display: block; margin-top: .2rem; color: #8c97a3; font-size: .75rem; }
+.coreui-admin .receipt-link { color: #4534d2; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.coreui-admin .receipt-link:hover { text-decoration: underline; }
+.form-card button:disabled { cursor: progress; opacity: .72; transform: none; }
