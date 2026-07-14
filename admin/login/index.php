@@ -21,8 +21,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $target = $controller->login($_POST, $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1', $_SERVER['HTTP_USER_AGENT'] ?? '');
             header('Location: ' . (str_starts_with($target, $basePath . '/') ? $target : app_url($target)));
             exit;
-        } catch (Throwable) {
-            $error = 'No fue posible conectar con la base de datos. Revisa la configuración del servidor.';
+        } catch (Throwable $exception) {
+            error_log('[admin-login] ' . $exception::class . ': ' . $exception->getMessage());
+            $error = 'No fue posible conectar con la base de datos. Revisa la configuración del servidor. Detalle local: ' . $exception->getMessage();
         }
     }
 }

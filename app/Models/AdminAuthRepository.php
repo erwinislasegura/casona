@@ -11,6 +11,7 @@ final class AdminAuthRepository
     public function findActiveUserByEmail(string $email): ?array
     {
         $login = mb_strtolower(trim($email));
+        $this->ensureAuthTables();
         $this->ensureUsernameSupport();
         $this->createSeedAdminIfNeeded($login);
 
@@ -84,6 +85,47 @@ final class AdminAuthRepository
         } catch (PDOException) {
             // Index may already exist.
         }
+    }
+
+    private function ensureAuthTables(): void
+    {
+        $this->db->exec(<<<'SQL'
+CREATE TABLE IF NOT EXISTS admin_users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  username VARCHAR(60) NOT NULL,
+  email VARCHAR(190) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('admin','scanner','viewer') NOT NULL DEFAULT 'viewer',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  last_login_at DATETIME NULL,
+  last_login_ip VARBINARY(16) NULL,
+  failed_login_count INT UNSIGNED NOT NULL DEFAULT 0,
+  locked_until DATETIME NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_admin_users_username (username),
+  UNIQUE KEY uq_admin_users_email (email),
+  KEY idx_admin_users_active (is_active),
+  KEY idx_admin_users_locked_until (locked_until)
+) ENGINE=InnoDB
+SQL);
+
+        $this->db->exec(<<<'SQL'
+CREATE TABLE IF NOT EXISTS admin_login_attempts (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL,
+  user_id BIGINT UNSIGNED NULL,
+  ip_address VARBINARY(16) NOT NULL,
+  user_agent VARCHAR(255) NULL,
+  was_successful TINYINT(1) NOT NULL DEFAULT 0,
+  failure_reason VARCHAR(120) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_login_attempts_email_created (email, created_at),
+  KEY idx_login_attempts_ip_created (ip_address, created_at),
+  CONSTRAINT fk_login_attempts_user FOREIGN KEY (user_id) REFERENCES admin_users(id) ON DELETE SET NULL
+) ENGINE=InnoDB
+SQL);
     }
 
     private function createSeedAdminIfNeeded(string $login): void
