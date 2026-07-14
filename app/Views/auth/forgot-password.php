@@ -25,13 +25,13 @@ $message = $message ?? 'Si el correo está registrado, recibirás instrucciones 
         <h1 class="h4 fw-black mt-2 mb-2">Restablecer acceso</h1>
         <p class="restricted small">Ingresa tu correo. No revelaremos si existe una cuenta asociada.</p>
         <div class="alert alert-info py-2 small" role="status"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div>
-        <form method="post" action="<?= $basePath ?>/admin/forgot-password" class="compact-login-form">
+        <form method="post" action="<?= $basePath ?>/admin/forgot-password/" class="compact-login-form">
           <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken ?? '', ENT_QUOTES, 'UTF-8') ?>">
           <label for="email" class="form-label small fw-bold mb-1">Correo electrónico</label>
           <input id="email" name="email" type="email" class="form-control form-control-lg mb-3" autocomplete="username" required>
           <button class="btn btn-warning w-100 fw-black py-2" type="submit" data-requires-online>Enviar instrucciones</button>
         </form>
-        <div class="text-center mt-3 small"><a class="link" href="<?= $basePath ?>/admin/login">Volver al login</a></div>
+        <div class="text-center mt-3 small"><a class="link" href="<?= $basePath ?>/admin/login/">Volver al login</a></div>
         <footer class="login-footer mt-3 small">Versión <?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?></footer>
       </div>
     </section>
