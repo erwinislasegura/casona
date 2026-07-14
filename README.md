@@ -134,3 +134,19 @@ Las vistas calculan automáticamente el prefijo del proyecto (`/casona`) desde `
 - `manifest.webmanifest`, `service-worker.js` y `offline.html` → sus archivos en `public/`
 
 Así `/casona/admin/login/` carga la vista y también sus CSS/JS.
+
+### Usuario inicial de administración
+
+Se agregó `database/seed_admin.sql` para crear un usuario inicial de pruebas:
+
+- Email: `admin@fiesta80s.cl`
+- Password inicial: `Admin12345!`
+
+Importar después del esquema:
+
+```bash
+mysql -u USER -p < database/schema.sql
+mysql -u USER -p < database/seed_admin.sql
+```
+
+Cambia esta contraseña inmediatamente después del primer ingreso.
