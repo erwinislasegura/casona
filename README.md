@@ -165,3 +165,5 @@ Si ya habías creado la base, ejecuta `database/migrations/001_add_admin_usernam
 ### Reparación automática del usuario local
 
 El login también verifica en tiempo de ejecución si la base local antigua no tiene la columna `username`. Si falta, intenta agregarla, poblarla desde el email y crear el índice. Además, cuando se intenta ingresar con `adminfiesta`, asegura que el usuario inicial exista, esté activo, sin bloqueo y con el hash correspondiente a `Admin$`.
+
+Si phpMyAdmin/XAMPP muestra problemas con `DROP PROCEDURE` o `DELIMITER`, usa la migración actualizada `database/migrations/001_add_admin_username.sql`; ya no utiliza procedimientos almacenados y usa `IF NOT EXISTS` para columna e índice.
