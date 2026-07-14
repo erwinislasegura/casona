@@ -2,7 +2,16 @@
 $basePath = $basePath ?? '';
 $appVersion = $appVersion ?? '1.0.0';
 $userName = $userName ?? 'Administrador';
-$moduleTitle = $moduleTitle ?? 'Inicio';
+$module = $module ?? 'inicio';
+$modules = [
+    'inicio' => ['title' => 'Inicio', 'description' => 'Resumen general del panel y accesos rápidos.'],
+    'reservas' => ['title' => 'Solicitudes pendientes', 'description' => 'Gestiona las reservas y solicitudes de mesas.'],
+    'scanner' => ['title' => 'Escáner de entradas', 'description' => 'Valida entradas QR desde el dispositivo autorizado.'],
+    'entradas' => ['title' => 'Entradas', 'description' => 'Revisa y administra las entradas emitidas.'],
+    'configuracion' => ['title' => 'Configuración', 'description' => 'Ajustes generales del evento y del panel.'],
+];
+$currentModule = $modules[$module] ?? $modules['inicio'];
+$moduleTitle = $moduleTitle ?? $currentModule['title'];
 ?>
 <!doctype html>
 <html lang="es">
@@ -16,43 +25,57 @@ $moduleTitle = $moduleTitle ?? 'Inicio';
   <link rel="manifest" href="<?= $basePath ?>/manifest.webmanifest">
   <link rel="apple-touch-icon" href="<?= $basePath ?>/assets/logo-ciclon.jpeg">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4F0S3pHCFWhT6+K6nvctHf1Ra9sENBo0LRn5q+8" crossorigin="anonymous">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css">
+  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css?v=<?= rawurlencode($appVersion) ?>">
+  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css?v=<?= rawurlencode($appVersion) ?>">
   <title>Panel de administración · Fiesta 80s</title>
 </head>
-<body class="login-body has-mobile-app-nav">
-  <header class="container pt-3 pt-lg-4">
-    <nav class="navbar navbar-expand-lg rounded-4 px-3 py-2" style="background:rgba(15,23,48,.88);border:1px solid rgba(255,255,255,.13)">
-      <a class="navbar-brand d-flex align-items-center gap-2 text-white fw-black" href="<?= $basePath ?>/admin/">
-        <span class="logo-badge" style="width:42px;height:42px"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="Ciclón Producciones"></span>
-        <span>Fiesta 80s</span>
+<body class="login-body admin-shell has-mobile-app-nav">
+  <header class="admin-header">
+    <nav class="admin-navbar container">
+      <a class="admin-brand" href="<?= $basePath ?>/admin/">
+        <span class="logo-badge"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="Ciclón Producciones"></span>
+        <span><strong>Fiesta 80s</strong><small>Panel de administración</small></span>
       </a>
-      <div class="ms-auto d-flex align-items-center gap-2 small">
+      <div class="admin-userbar">
         <span class="connection-status" data-connection-status>En línea</span>
-        <span class="text-white-50 d-none d-sm-inline"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
-        <a class="btn btn-sm btn-outline-light" href="<?= $basePath ?>/admin/logout">Cerrar sesión</a>
+        <span class="admin-user-name"><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?></span>
+        <a class="btn btn-sm btn-outline-light" href="<?= $basePath ?>/admin/logout">Salir</a>
       </div>
     </nav>
   </header>
 
-  <main class="container py-3 py-lg-4">
-    <section class="login-card card border-0 shadow-lg w-100" style="max-width:none">
-      <div class="card-body p-3 p-lg-4">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
-          <div>
-            <span class="kicker">Panel de administración</span>
-            <h1 class="h4 fw-black mt-2 mb-0"><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></h1>
-          </div>
-          <button type="button" class="pwa-button" data-install-pwa>Instalar aplicación</button>
-        </div>
+  <main class="container admin-layout">
+    <aside class="admin-sidebar" aria-label="Secciones del panel">
+      <?php foreach ($modules as $key => $item): ?>
+        <a class="admin-nav-link <?= $module === $key ? 'is-active' : '' ?>" href="<?= $basePath ?>/admin/<?= $key === 'inicio' ? '' : $key ?>">
+          <span><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></span>
+        </a>
+      <?php endforeach; ?>
+    </aside>
 
-        <div class="row g-3">
-          <div class="col-12 col-md-6 col-xl-3"><a class="btn btn-warning w-100 py-3 fw-black" href="<?= $basePath ?>/admin/reservas?status=pending">Solicitudes pendientes</a></div>
-          <div class="col-12 col-md-6 col-xl-3"><a class="btn btn-outline-light w-100 py-3 fw-black" href="<?= $basePath ?>/admin/scanner">Escanear entradas</a></div>
-          <div class="col-12 col-md-6 col-xl-3"><a class="btn btn-outline-light w-100 py-3 fw-black" href="<?= $basePath ?>/admin/entradas">Entradas</a></div>
-          <div class="col-12 col-md-6 col-xl-3"><a class="btn btn-outline-light w-100 py-3 fw-black" href="<?= $basePath ?>/admin/configuracion">Configuración</a></div>
+    <section class="admin-content-card">
+      <div class="admin-hero-row">
+        <div>
+          <span class="kicker">Panel operativo</span>
+          <h1><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></h1>
+          <p><?= htmlspecialchars($currentModule['description'], ENT_QUOTES, 'UTF-8') ?></p>
         </div>
+        <button type="button" class="pwa-button" data-install-pwa>Instalar aplicación</button>
       </div>
+
+      <div class="admin-actions-grid">
+        <a class="admin-action is-warning" href="<?= $basePath ?>/admin/reservas?status=pending"><strong>Solicitudes pendientes</strong><span>Ver reservas por confirmar</span></a>
+        <a class="admin-action" href="<?= $basePath ?>/admin/scanner"><strong>Escanear entradas</strong><span>Validación QR</span></a>
+        <a class="admin-action" href="<?= $basePath ?>/admin/entradas"><strong>Entradas</strong><span>Listado y estado</span></a>
+        <a class="admin-action" href="<?= $basePath ?>/admin/configuracion"><strong>Configuración</strong><span>Ajustes del evento</span></a>
+      </div>
+
+      <?php if ($module !== 'inicio'): ?>
+        <div class="admin-placeholder">
+          <strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong>
+          <p>La ruta ya responde correctamente. Este bloque queda preparado para conectar la funcionalidad específica sin romper navegación ni estilos.</p>
+        </div>
+      <?php endif; ?>
     </section>
   </main>
 
@@ -64,9 +87,9 @@ $moduleTitle = $moduleTitle ?? 'Inicio';
     <a href="<?= $basePath ?>/admin/logout">Salir</a>
   </nav>
 
-  <script src="<?= $basePath ?>/assets/js/install-pwa.js" defer></script>
-  <script src="<?= $basePath ?>/assets/js/service-worker-register.js" defer></script>
-  <script src="<?= $basePath ?>/assets/js/app-update.js" defer></script>
-  <script src="<?= $basePath ?>/assets/js/connection-status.js" defer></script>
+  <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= $basePath ?>/assets/js/app-update.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= $basePath ?>/assets/js/connection-status.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
 </body>
 </html>
