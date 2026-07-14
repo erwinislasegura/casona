@@ -22,3 +22,18 @@ ON DUPLICATE KEY UPDATE
   is_active = VALUES(is_active),
   failed_login_count = 0,
   locked_until = NULL;
+
+INSERT IGNORE INTO reservas (request_code, full_name, rut, phone, email, people_count, total_amount, status)
+VALUES
+  ('RSV-80S-001', 'Reserva Demo Pendiente', '11.111.111-1', '+56911111111', 'demo1@fiesta80s.local', 4, 60000, 'pending'),
+  ('RSV-80S-002', 'Reserva Demo Confirmada', '22.222.222-2', '+56922222222', 'demo2@fiesta80s.local', 2, 30000, 'approved');
+
+INSERT IGNORE INTO entradas (reserva_id, qr_token_hash, status)
+SELECT id, SHA2(CONCAT(request_code, '-ticket-1'), 256), 'issued'
+FROM reservas
+WHERE request_code IN ('RSV-80S-001', 'RSV-80S-002');
+
+INSERT IGNORE INTO admin_settings (setting_key, setting_value) VALUES
+  ('event_name', 'Fiesta Ochentera Solidaria'),
+  ('sales_mode', 'Reservas con confirmación'),
+  ('notifications', 'Activas');
