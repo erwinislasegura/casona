@@ -86,11 +86,16 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
     <a href="<?= $basePath ?>/admin/logout">Salir</a>
   </nav>
 
-  <footer class="admin-footer container"><span>Fiesta Ochentera Solidaria · Ciclón Producciones</span><span>Panel seguro · v<?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?></span></footer>
+  <footer class="admin-footer container">
+    <div><strong>Fiesta Ochentera Solidaria</strong><span>Ciclón Producciones · Operación del evento</span></div>
+    <div><strong>Panel seguro</strong><span><?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?> · v<?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?></span></div>
+    <div class="admin-footer-links"><a href="<?= $basePath ?>/admin/">Inicio</a><a href="<?= $basePath ?>/admin/configuracion">Configuración</a><a href="<?= $basePath ?>/admin/logout">Salir</a></div>
+  </footer>
 
   <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/app-update.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/connection-status.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <?php if ($module === 'scanner'): ?><script src="<?= $basePath ?>/assets/js/scanner.v1.js?v=<?= rawurlencode($appVersion) ?>" defer></script><?php endif; ?>
 </body>
 </html>
