@@ -15,5 +15,8 @@ VALUES (
 )
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
+  password_hash = VALUES(password_hash),
   role = VALUES(role),
-  is_active = VALUES(is_active);
+  is_active = VALUES(is_active),
+  failed_login_count = 0,
+  locked_until = NULL;

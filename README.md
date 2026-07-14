@@ -150,3 +150,5 @@ mysql -u USER -p < database/seed_admin.sql
 ```
 
 Cambia esta contraseña inmediatamente después del primer ingreso.
+
+Si el usuario ya existía antes, vuelve a ejecutar `database/seed_admin.sql`: el seed ahora actualiza también `password_hash`, limpia `failed_login_count` y elimina `locked_until` para evitar que un usuario previo quede con contraseña antigua o bloqueado.

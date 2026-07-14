@@ -11,7 +11,9 @@ final class AdminAuthController
         $redirectTo = $this->safeRedirect((string)($input['redirect_to'] ?? '/admin'));
         $user = $this->users->findActiveUserByEmail($email);
 
-        if (!$user || !empty($user['locked_until']) || !password_verify($password, $user['password_hash'])) {
+        $isLocked = $user && !empty($user['locked_until']) && strtotime((string)$user['locked_until']) > time();
+
+        if (!$user || $isLocked || !password_verify($password, $user['password_hash'])) {
             if ($user) {
                 $this->users->registerFailedLogin((int)$user['id']);
             }
