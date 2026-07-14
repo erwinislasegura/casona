@@ -3,7 +3,7 @@ session_start();
 require_once __DIR__ . '/../../config/paths.php';
 
 $basePath = app_base_path();
-$redirectTo = $_POST['redirect_to'] ?? $_GET['redirect_to'] ?? app_url('/admin');
+$redirectTo = $_POST['redirect_to'] ?? $_GET['redirect_to'] ?? app_url('/admin/');
 $error = '';
 $csrfToken = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
 $_SESSION['csrf_token'] = $csrfToken;
