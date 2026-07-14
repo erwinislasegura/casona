@@ -45,6 +45,7 @@ final class ReservationRepository
             KEY idx_entradas_status (status),
             KEY idx_entradas_reserva_id (reserva_id)
         ) ENGINE=InnoDB");
+        $this->ensureTicketColumns();
     }
 
     public function create(array $input, ?array $receipt): array
@@ -109,8 +110,35 @@ final class ReservationRepository
         return $code;
     }
 
+
+    private function ensureTicketColumns(): void
+    {
+        try {
+            $this->db->exec("ALTER TABLE entradas MODIFY status ENUM('issued','entered','exited','void') NOT NULL DEFAULT 'issued'");
+        } catch (Throwable) {}
+
+        foreach ([
+            'ticket_code' => 'ALTER TABLE entradas ADD COLUMN ticket_code VARCHAR(40) NULL AFTER id',
+            'holder_name' => 'ALTER TABLE entradas ADD COLUMN holder_name VARCHAR(160) NULL AFTER reserva_id',
+            'issued_at' => 'ALTER TABLE entradas ADD COLUMN issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER status',
+            'entered_at' => 'ALTER TABLE entradas ADD COLUMN entered_at DATETIME NULL AFTER issued_at',
+            'exited_at' => 'ALTER TABLE entradas ADD COLUMN exited_at DATETIME NULL AFTER entered_at',
+            'scanned_by' => 'ALTER TABLE entradas ADD COLUMN scanned_by BIGINT UNSIGNED NULL AFTER exited_at',
+        ] as $column => $sql) {
+            try {
+                $this->db->query('SELECT ' . $column . ' FROM entradas LIMIT 1');
+            } catch (Throwable) {
+                $this->db->exec($sql);
+            }
+        }
+    }
+
     private function ensureReceiptColumns(): void
     {
+        try {
+            $this->db->exec("ALTER TABLE reservas MODIFY status ENUM('pending','approved','rejected','cancelled') NOT NULL DEFAULT 'pending'");
+        } catch (Throwable) {}
+
         foreach ([
             'receipt_name' => 'ALTER TABLE reservas ADD COLUMN receipt_name VARCHAR(190) NULL AFTER receipt_path',
             'receipt_mime' => 'ALTER TABLE reservas ADD COLUMN receipt_mime VARCHAR(120) NULL AFTER receipt_name',

@@ -80,7 +80,8 @@ try {
     }
 
     $panelData = $panelRepository->dashboardData();
-} catch (Throwable) {
+} catch (Throwable $exception) {
+    error_log('[admin-panel] ' . $exception::class . ': ' . $exception->getMessage());
     // La vista muestra una advertencia y datos vacíos para no romper el panel si falta la BD.
 }
 

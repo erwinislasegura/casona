@@ -99,6 +99,7 @@ final class AdminPanelRepository
 
     public function updateReservaStatus(int $id, string $status): void
     {
+        (new ReservationRepository($this->db))->ensureReservationTables();
         if (!in_array($status, ['pending', 'approved', 'rejected', 'cancelled'], true)) return;
         $stmt = $this->db->prepare('UPDATE reservas SET status = :status WHERE id = :id');
         $stmt->execute(['status' => $status, 'id' => $id]);
@@ -139,6 +140,7 @@ final class AdminPanelRepository
 
     public function updateReservaDetails(int $id, array $input): void
     {
+        (new ReservationRepository($this->db))->ensureReservationTables();
         $people = max(1, min(20, (int)($input['people_count'] ?? 1)));
         $total = $people * 6000;
         $stmt = $this->db->prepare('UPDATE reservas SET full_name = :full_name, rut = :rut, phone = :phone, email = :email, people_count = :people_count, total_amount = :total_amount WHERE id = :id');
@@ -155,6 +157,7 @@ final class AdminPanelRepository
 
     public function deleteReserva(int $id): void
     {
+        (new ReservationRepository($this->db))->ensureReservationTables();
         $stmt = $this->db->prepare('SELECT receipt_path FROM reservas WHERE id = :id LIMIT 1');
         $stmt->execute(['id' => $id]);
         $receiptPath = (string)($stmt->fetchColumn() ?: '');
