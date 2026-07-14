@@ -1,0 +1,22 @@
+{
+  "name": "Fiesta Ochentera Solidaria",
+  "short_name": "Fiesta 80s",
+  "description": "Sistema de administración, reservas, entradas virtuales y control de acceso para la Fiesta Ochentera Solidaria.",
+  "id": "/admin",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080d1a",
+  "theme_color": "#0b1020",
+  "categories": ["business", "productivity", "events"],
+  "icons": [
+    {"src":"/assets/logo-ciclon.jpeg","sizes":"72x72 96x96 128x128 144x144 152x152 192x192 384x384 512x512","type":"image/jpeg","purpose":"any"},
+    {"src":"/assets/logo-ciclon.jpeg","sizes":"192x192","type":"image/jpeg","purpose":"maskable"},
+    {"src":"/assets/logo-ciclon.jpeg","sizes":"512x512","type":"image/jpeg","purpose":"maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Escanear entradas","short_name":"Escáner","description":"Abrir lector QR para validar entradas","url":"/admin/scanner","icons":[{"src":"/assets/logo-ciclon.jpeg","sizes":"192x192","type":"image/jpeg","purpose":"maskable"}]},
+    {"name":"Solicitudes pendientes","short_name":"Pendientes","description":"Ver reservas pendientes de revisión","url":"/admin/reservas?status=pending","icons":[{"src":"/assets/logo-ciclon.jpeg","sizes":"192x192","type":"image/jpeg"}]}
+  ]
+}
