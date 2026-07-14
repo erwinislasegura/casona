@@ -4,6 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b1020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Fiesta 80s">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/logo-ciclon.jpeg">
+  <link rel="stylesheet" href="/assets/css/pwa.css">
   <meta name="description" content="Fiesta Ochentera solidaria en Club La Casona de Los Ángeles. Reserva tu mesa y apoya a tenimesistas angelinos rumbo al Abierto de Asunción, Paraguay.">
   <title>Fiesta Ochentera Solidaria · Club La Casona</title>
   <style>
@@ -805,13 +811,17 @@
         Viernes 24 de julio de 2026 · Desde las 21:00 horas · Club La Casona · Los Ángeles
       </div>
       <div class="credits">
-        Sitio promocional para solicitar reservas del evento benéfico. Las solicitudes quedan sujetas a revisión y aprobación antes de emitir la entrada virtual.
+        Sitio promocional para solicitar reservas del evento benéfico. Las solicitudes quedan sujetas a revisión y aprobación antes de emitir la entrada virtual.<br><a href="/admin/login" class="btn btn-secondary" aria-label="Abrir acceso administrador">Acceso administrador</a>
       </div>
     </div>
   </footer>
 
   <div class="mobile-cta"><a class="btn btn-primary" href="#reservar">Reservar mesa · $6.000 p/p</a></div>
 
+  <script src="/assets/js/install-pwa.js" defer></script>
+  <script src="/assets/js/service-worker-register.js" defer></script>
+  <script src="/assets/js/app-update.js" defer></script>
+  <script src="/assets/js/connection-status.js" defer></script>
   <script>
     (() => {
       const price = 6000;
