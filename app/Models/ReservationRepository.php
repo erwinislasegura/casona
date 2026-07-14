@@ -34,6 +34,7 @@ final class ReservationRepository
             ticket_code VARCHAR(40) NULL,
             reserva_id BIGINT UNSIGNED NOT NULL,
             holder_name VARCHAR(160) NULL,
+            qr_token VARCHAR(120) NULL,
             qr_token_hash CHAR(64) NOT NULL,
             status ENUM('issued','entered','exited','void') NOT NULL DEFAULT 'issued',
             issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -120,6 +121,7 @@ final class ReservationRepository
         foreach ([
             'ticket_code' => 'ALTER TABLE entradas ADD COLUMN ticket_code VARCHAR(40) NULL AFTER id',
             'holder_name' => 'ALTER TABLE entradas ADD COLUMN holder_name VARCHAR(160) NULL AFTER reserva_id',
+            'qr_token' => 'ALTER TABLE entradas ADD COLUMN qr_token VARCHAR(120) NULL AFTER holder_name',
             'issued_at' => 'ALTER TABLE entradas ADD COLUMN issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER status',
             'entered_at' => 'ALTER TABLE entradas ADD COLUMN entered_at DATETIME NULL AFTER issued_at',
             'exited_at' => 'ALTER TABLE entradas ADD COLUMN exited_at DATETIME NULL AFTER entered_at',

@@ -83,7 +83,9 @@ final class AdminPanelRepository
             $this->issueTicketsForReservation($id);
         }
 
-        $tickets = $this->db->prepare('SELECT id, ticket_code, holder_name, status, issued_at FROM entradas WHERE reserva_id = :id ORDER BY id ASC');
+        $this->ensureTicketTokens($id);
+
+        $tickets = $this->db->prepare('SELECT id, ticket_code, holder_name, qr_token, status, issued_at FROM entradas WHERE reserva_id = :id ORDER BY id ASC');
         $tickets->execute(['id' => $id]);
         $reservation['tickets'] = $tickets->fetchAll();
         return $reservation;
@@ -143,19 +145,32 @@ final class AdminPanelRepository
         $missing = max(0, (int)$row['people_count'] - (int)$existing->fetchColumn());
         if ($missing === 0) return;
 
-        $insert = $this->db->prepare("INSERT INTO entradas (ticket_code, reserva_id, holder_name, qr_token_hash, status) VALUES (:ticket_code, :reserva_id, :holder_name, :qr_token_hash, 'issued')");
+        $insert = $this->db->prepare("INSERT INTO entradas (ticket_code, reserva_id, holder_name, qr_token, qr_token_hash, status) VALUES (:ticket_code, :reserva_id, :holder_name, :qr_token, :qr_token_hash, 'issued')");
         for ($i = 1; $i <= $missing; $i++) {
             $ticketCode = $row['request_code'] . '-' . str_pad((string)(((int)$row['people_count'] - $missing) + $i), 2, '0', STR_PAD_LEFT);
-            $token = $ticketCode . '-' . bin2hex(random_bytes(16));
+            $token = $ticketCode . '-' . bin2hex(random_bytes(12));
             $insert->execute([
                 'ticket_code' => $ticketCode,
                 'reserva_id' => $id,
                 'holder_name' => $row['full_name'],
+                'qr_token' => $token,
                 'qr_token_hash' => hash('sha256', $token),
             ]);
         }
     }
 
+
+
+    private function ensureTicketTokens(int $reservaId): void
+    {
+        $tickets = $this->db->prepare('SELECT id, ticket_code FROM entradas WHERE reserva_id = :id AND (qr_token IS NULL OR qr_token = \'\')');
+        $tickets->execute(['id' => $reservaId]);
+        $update = $this->db->prepare('UPDATE entradas SET qr_token = :token, qr_token_hash = :hash WHERE id = :id');
+        foreach ($tickets->fetchAll() as $ticket) {
+            $token = ($ticket['ticket_code'] ?: ('TICKET-' . $ticket['id'])) . '-' . bin2hex(random_bytes(12));
+            $update->execute(['token' => $token, 'hash' => hash('sha256', $token), 'id' => $ticket['id']]);
+        }
+    }
 
     public function updateReservaDetails(int $id, array $input): void
     {
