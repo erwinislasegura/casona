@@ -48,8 +48,8 @@ $error = $error ?? '';
         <input type="hidden" name="redirect_to" value="<?= htmlspecialchars($redirectTo ?? ($basePath . '/admin'), ENT_QUOTES, 'UTF-8') ?>">
 
         <div class="mb-2">
-          <label for="email" class="form-label">Correo electrónico</label>
-          <input id="email" name="email" type="email" class="form-control" inputmode="email" autocomplete="username" placeholder="admin@fiesta80s.cl" required>
+          <label for="email" class="form-label">Usuario</label>
+          <input id="email" name="email" type="text" class="form-control" inputmode="text" autocomplete="username" placeholder="adminfiesta" required>
         </div>
 
         <div class="mb-2">

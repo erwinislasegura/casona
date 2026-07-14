@@ -6,8 +6,9 @@ final class AdminAuthRepository
 
     public function findActiveUserByEmail(string $email): ?array
     {
-        $stmt = $this->db->prepare('SELECT * FROM admin_users WHERE email = :email AND is_active = 1 LIMIT 1');
-        $stmt->execute(['email' => mb_strtolower(trim($email))]);
+        $login = mb_strtolower(trim($email));
+        $stmt = $this->db->prepare('SELECT * FROM admin_users WHERE (email = :login OR username = :login) AND is_active = 1 LIMIT 1');
+        $stmt->execute(['login' => $login]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         return $user ?: null;
     }

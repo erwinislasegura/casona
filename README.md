@@ -152,3 +152,12 @@ mysql -u USER -p < database/seed_admin.sql
 Cambia esta contraseña inmediatamente después del primer ingreso.
 
 Si el usuario ya existía antes, vuelve a ejecutar `database/seed_admin.sql`: el seed ahora actualiza también `password_hash`, limpia `failed_login_count` y elimina `locked_until` para evitar que un usuario previo quede con contraseña antigua o bloqueado.
+
+### Credenciales cortas de administración
+
+El usuario inicial ahora usa credenciales cortas:
+
+- Usuario: `adminfiesta`
+- Password inicial: `Admin$`
+
+Si ya habías creado la base, ejecuta `database/migrations/001_add_admin_username.sql` y luego `database/seed_admin.sql` para agregar la columna `username` y actualizar el usuario.

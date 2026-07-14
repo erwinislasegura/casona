@@ -10,6 +10,7 @@ USE fiesta_ochentera;
 CREATE TABLE IF NOT EXISTS admin_users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,
+  username VARCHAR(60) NOT NULL,
   email VARCHAR(190) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   role ENUM('admin','scanner','viewer') NOT NULL DEFAULT 'viewer',
@@ -20,6 +21,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
   locked_until DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_admin_users_username (username),
   UNIQUE KEY uq_admin_users_email (email),
   KEY idx_admin_users_active (is_active),
   KEY idx_admin_users_locked_until (locked_until)
