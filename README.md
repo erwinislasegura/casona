@@ -104,3 +104,13 @@ DB_PASSWORD=secret
 - El formulario de login envía `redirect_to=/admin` para que, después de autenticar, el controlador redirija al panel.
 - `app/Controllers/AdminAuthController.php` valida credenciales con MySQL, regenera la sesión, registra el intento y devuelve una ruta segura de redirección.
 - `app/Views/admin/dashboard.php` es la vista compacta Bootstrap del panel inicial con accesos a solicitudes, escáner, entradas y configuración.
+
+### Rutas PHP incluidas
+
+Para que el login cargue sin depender de reglas externas de servidor, se agregaron entradas PHP directas:
+
+- `/admin/login/` carga `app/Views/auth/login.php` y procesa POST de autenticación.
+- `/admin/` valida sesión y carga `app/Views/admin/dashboard.php`.
+- `/admin/forgot-password/` y `/admin/reset-password/` cargan sus vistas compactas.
+
+La conexión MySQL quedó separada en `config/database.php`; las vistas no crean conexiones directas. El controlador de login usa esa fábrica solo al recibir POST, así la pantalla de acceso puede cargar aunque la base de datos esté temporalmente fuera de servicio.
