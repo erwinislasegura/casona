@@ -28,24 +28,23 @@ foreach (($reservas ?? []) as $item) {
     </form>
   <?php endif; ?>
 
-  <div class="admin-table-wrap"><table class="admin-table reservations-table"><thead><tr><th>Código</th><th>Cliente</th><th>Contacto</th><th>Personas</th><th>Total</th><th>Comprobante</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+  <div class="admin-table-wrap"><table class="admin-table reservations-table improved-reservations"><thead><tr><th>Solicitud</th><th>Cliente y contacto</th><th>Reserva</th><th>Documentos</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
     <?php foreach (($reservas ?? []) as $reserva): ?>
       <tr>
         <td><strong><?= htmlspecialchars($reserva['request_code'], ENT_QUOTES, 'UTF-8') ?></strong><small><?= htmlspecialchars((string)($reserva['created_at'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
-        <td><?= htmlspecialchars($reserva['full_name'], ENT_QUOTES, 'UTF-8') ?><small><?= htmlspecialchars((string)($reserva['rut'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
-        <td><?= htmlspecialchars((string)($reserva['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?><small><?= htmlspecialchars((string)($reserva['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
-        <td><?= (int)$reserva['people_count'] ?></td>
-        <td>$<?= number_format((int)$reserva['total_amount'], 0, ',', '.') ?></td>
-        <td><?php if (!empty($reserva['receipt_path'])): ?><a class="receipt-link" href="<?= htmlspecialchars($basePath . $reserva['receipt_path'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">Ver comprobante</a><?php elseif (!empty($reserva['receipt_name'])): ?><a class="receipt-link" href="<?= $basePath ?>/admin/comprobante?id=<?= (int)$reserva['id'] ?>" target="_blank" rel="noopener">Ver comprobante</a><?php else: ?>—<?php endif; ?></td>
+        <td><span class="cell-title"><?= htmlspecialchars($reserva['full_name'], ENT_QUOTES, 'UTF-8') ?></span><small>RUT: <?= htmlspecialchars((string)($reserva['rut'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small><small><?= htmlspecialchars((string)($reserva['phone'] ?? ''), ENT_QUOTES, 'UTF-8') ?> · <?= htmlspecialchars((string)($reserva['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
+        <td><span class="cell-title"><?= (int)$reserva['people_count'] ?> persona(s)</span><small>Total pagado: $<?= number_format((int)$reserva['total_amount'], 0, ',', '.') ?></small></td>
+        <td><div class="document-links"><?php if (!empty($reserva['receipt_path'])): ?><a class="receipt-link" href="<?= htmlspecialchars($basePath . $reserva['receipt_path'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">Comprobante</a><?php elseif (!empty($reserva['receipt_name'])): ?><a class="receipt-link" href="<?= $basePath ?>/admin/comprobante?id=<?= (int)$reserva['id'] ?>" target="_blank" rel="noopener">Comprobante</a><?php else: ?><span>Sin comprobante</span><?php endif; ?><?php if (($reserva['status'] ?? '') === 'approved'): ?><a class="receipt-link is-ticket" href="<?= $basePath ?>/admin/entrada-pdf?id=<?= (int)$reserva['id'] ?>">Entrada PDF</a><?php endif; ?></div></td>
         <td><span class="status-pill is-<?= htmlspecialchars($reserva['status'], ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($reserva['status'], ENT_QUOTES, 'UTF-8') ?></span></td>
-        <td><div class="reservation-actions">
-          <form method="post"><input type="hidden" name="action" value="update_reserva"><input type="hidden" name="reserva_id" value="<?= (int)$reserva['id'] ?>"><input type="hidden" name="status" value="approved"><button class="action-button is-approve" type="submit">Aprobar</button></form>
+        <td><details class="actions-dropdown"><summary>Opciones</summary><div class="actions-menu">
+          <form method="post"><input type="hidden" name="action" value="update_reserva"><input type="hidden" name="reserva_id" value="<?= (int)$reserva['id'] ?>"><input type="hidden" name="status" value="approved"><button class="action-button is-approve" type="submit">Aprobar y emitir PDF</button></form>
           <form method="post"><input type="hidden" name="action" value="update_reserva"><input type="hidden" name="reserva_id" value="<?= (int)$reserva['id'] ?>"><input type="hidden" name="status" value="rejected"><button class="action-button is-reject" type="submit">Rechazar</button></form>
-          <a class="action-button is-edit" href="<?= $basePath ?>/admin/reservas?edit=<?= (int)$reserva['id'] ?>">Editar</a>
+          <a class="action-button is-edit" href="<?= $basePath ?>/admin/reservas?edit=<?= (int)$reserva['id'] ?>">Editar datos</a>
+          <?php if (($reserva['status'] ?? '') === 'approved'): ?><a class="action-button is-ticket" href="<?= $basePath ?>/admin/entrada-pdf?id=<?= (int)$reserva['id'] ?>">Descargar entrada PDF</a><?php endif; ?>
           <form method="post" onsubmit="return confirm('¿Eliminar definitivamente esta reserva?');"><input type="hidden" name="action" value="delete_reserva"><input type="hidden" name="reserva_id" value="<?= (int)$reserva['id'] ?>"><button class="action-button is-delete" type="submit">Eliminar</button></form>
-        </div></td>
+        </div></details></td>
       </tr>
     <?php endforeach; ?>
-    <?php if (empty($reservas)): ?><tr><td colspan="8"><div class="empty-state">No hay reservas registradas todavía.</div></td></tr><?php endif; ?>
+    <?php if (empty($reservas)): ?><tr><td colspan="6"><div class="empty-state">No hay reservas registradas todavía.</div></td></tr><?php endif; ?>
   </tbody></table></div>
 </div>

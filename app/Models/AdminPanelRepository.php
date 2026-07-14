@@ -70,6 +70,25 @@ final class AdminPanelRepository
     }
 
 
+
+    public function reservaWithTickets(int $id): ?array
+    {
+        (new ReservationRepository($this->db))->ensureReservationTables();
+        $stmt = $this->db->prepare('SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, created_at FROM reservas WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        $reservation = $stmt->fetch();
+        if (!$reservation) return null;
+
+        if ($reservation['status'] === 'approved') {
+            $this->issueTicketsForReservation($id);
+        }
+
+        $tickets = $this->db->prepare('SELECT id, ticket_code, holder_name, status, issued_at FROM entradas WHERE reserva_id = :id ORDER BY id ASC');
+        $tickets->execute(['id' => $id]);
+        $reservation['tickets'] = $tickets->fetchAll();
+        return $reservation;
+    }
+
     public function reservaReceipt(int $id): ?array
     {
         $stmt = $this->db->prepare('SELECT receipt_path, receipt_name, receipt_mime, receipt_blob FROM reservas WHERE id = :id LIMIT 1');
