@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Fiesta Ochentera solidaria en Club La Casona de Los Ángeles. Reserva tu mesa y apoya a tenimesistas angelinos rumbo al Abierto de Asunción, Paraguay.">
+  <title>Fiesta Ochentera Solidaria · Club La Casona</title>
+  <style>
+    :root{
+      --bg:#080d1a;
+      --bg2:#0f1730;
+      --panel:rgba(15,23,48,.78);
+      --panel-soft:rgba(255,255,255,.06);
+      --line:rgba(255,255,255,.12);
+      --white:#f7fbff;
+      --text:#d2dbea;
+      --muted:#9fb1c7;
+      --pink:#ff4fb8;
+      --cyan:#38dfff;
+      --violet:#8a63ff;
+      --gold:#ffcf5c;
+      --orange:#ff9a1f;
+      --green:#4ade80;
+      --dark:#0d1324;
+      --shadow:0 28px 80px rgba(0,0,0,.35);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--white);
+      background:
+        radial-gradient(circle at 15% 12%, rgba(255,79,184,.12), transparent 30rem),
+        radial-gradient(circle at 88% 10%, rgba(56,223,255,.1), transparent 24rem),
+        linear-gradient(180deg,#070b15 0%, #0a1020 42%, #0b1225 100%);
+      line-height:1.55;
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.12;
+      background-image:
+        linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size:42px 42px;
+      mask-image:linear-gradient(to bottom, #000, transparent 80%);
+    }
+    img{display:block;max-width:100%}
+    a{text-decoration:none;color:inherit}
+    button,input,select{font:inherit}
+    .container{width:min(1160px, calc(100% - 28px)); margin:auto}
+
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      background:rgba(8,13,26,.82);
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(18px);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; justify-content:space-between; gap:18px;
+      min-height:88px;
+    }
+    .brand-block{display:flex; align-items:center; gap:18px; flex-wrap:wrap}
+    .brand-copy{display:flex; flex-direction:column; gap:2px}
+    .brand-copy strong{font-size:1rem; letter-spacing:.08em; text-transform:uppercase}
+    .brand-copy span{font-size:.78rem; color:var(--muted); letter-spacing:.12em; text-transform:uppercase}
+    .logo-row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    .logo-badge{
+      width:76px; height:76px; border-radius:50%;
+      background:#fff;
+      border:3px solid rgba(255,255,255,.14);
+      box-shadow:0 12px 30px rgba(0,0,0,.24), inset 0 0 0 1px rgba(0,0,0,.04);
+      display:grid; place-items:center; padding:8px;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .logo-badge img{width:100%; height:100%; object-fit:contain; border-radius:50%}
+    .nav{display:flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:flex-end}
+    .nav a{font-size:.92rem; font-weight:850; color:#d7e3f4}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      min-height:50px; padding:0 18px; border-radius:15px; border:0; cursor:pointer;
+      font-weight:900; letter-spacing:.01em; transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-2px)}
+    .btn-primary{background:linear-gradient(135deg,var(--gold),var(--orange)); color:#12192c; box-shadow:0 14px 34px rgba(255,154,31,.24)}
+    .btn-secondary{background:rgba(255,255,255,.07); color:#fff; border:1px solid var(--line)}
+    .btn-whatsapp{background:var(--green); color:#0a1e13}
+
+    .hero{padding:56px 0 42px}
+    .hero-grid{display:grid; grid-template-columns:1fr .95fr; gap:44px; align-items:center}
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:10px; padding:8px 13px; border-radius:999px;
+      font-size:.75rem; font-weight:900; text-transform:uppercase; letter-spacing:.14em;
+      color:#ffe8a5; background:rgba(255,207,92,.08); border:1px solid rgba(255,207,92,.24);
+    }
+    .eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 7px rgba(255,154,31,.12)}
+    h1{
+      margin:20px 0 18px;
+      font-size:clamp(2.05rem,4.2vw,3.45rem);
+      line-height:1.01;
+      letter-spacing:-.055em;
+      text-transform:uppercase;
+    }
+    h1 .accent{color:var(--cyan); text-shadow:0 0 18px rgba(56,223,255,.18)}
+    .lead{margin:0 0 28px; color:var(--text); font-size:1rem; line-height:1.72; max-width:620px}
+    .hero-actions{display:flex; flex-wrap:wrap; gap:13px; margin-bottom:24px}
+    .hero-meta{display:grid; grid-template-columns:repeat(4,1fr); gap:14px}
+    .meta-card{
+      background:rgba(255,255,255,.055); border:1px solid var(--line); border-radius:18px;
+      padding:17px 15px; min-height:100px;
+    }
+    .meta-card strong{display:block; font-size:.98rem; margin-bottom:5px}
+    .meta-card span{display:block; color:var(--muted); font-size:.88rem; line-height:1.5}
+
+    .hero-visual{position:relative}
+    .hero-card{
+      position:relative; min-height:530px; border-radius:34px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.16); box-shadow:var(--shadow);
+      background:#12182d;
+      isolation:isolate;
+    }
+    .hero-photo{
+      position:absolute; inset:0;
+      background:url('assets/abba-color-1.png') center 18% / cover no-repeat;
+      transform:scale(1.02);
+    }
+    .hero-overlay{
+      position:absolute; inset:0;
+      background:
+        linear-gradient(180deg, rgba(7,11,21,.16), rgba(7,11,21,.52) 58%, rgba(7,11,21,.9) 100%),
+        linear-gradient(120deg, rgba(255,79,184,.12), transparent 35%),
+        linear-gradient(240deg, rgba(56,223,255,.1), transparent 40%);
+    }
+    .scanlines{
+      position:absolute; inset:auto 0 0 0; height:46%; opacity:.22;
+      background:repeating-linear-gradient(to bottom, rgba(255,255,255,.11) 0 2px, transparent 2px 12px);
+      mask-image:linear-gradient(to top, #000, transparent 85%);
+    }
+    .hero-content{position:absolute; inset:auto 30px 30px 30px; z-index:2}
+    .hero-tag{font-size:.74rem; text-transform:uppercase; letter-spacing:.18em; font-weight:900; color:#ffe8a5; margin-bottom:10px}
+    .hero-title{font-size:clamp(1.55rem,3vw,2.25rem); line-height:1.02; font-weight:1000; text-transform:uppercase; letter-spacing:-.035em; margin:0 0 12px}
+    .hero-title span{display:block; color:var(--pink)}
+    .hero-note{max-width:520px; color:#d4dff0; font-size:.92rem; line-height:1.62}
+    .price-chip{
+      position:absolute; top:22px; right:22px; z-index:3;
+      background:rgba(12,19,36,.84); border:1px solid rgba(255,255,255,.16); border-radius:18px;
+      padding:12px 14px; text-align:right; backdrop-filter:blur(12px);
+    }
+    .price-chip small{display:block; text-transform:uppercase; letter-spacing:.12em; font-size:.68rem; color:#ffe8a5; font-weight:900}
+    .price-chip strong{display:block; font-size:1.5rem; line-height:1; color:#fff}
+
+    .banner-section{padding:26px 0 16px}
+    .banner{
+      position:relative; overflow:hidden;
+      border-radius:28px; border:1px solid var(--line); background:linear-gradient(135deg, rgba(138,99,255,.16), rgba(255,79,184,.14), rgba(56,223,255,.1));
+      padding:30px 28px;
+      display:grid; grid-template-columns:1.1fr .9fr; gap:18px; align-items:center;
+    }
+    .banner::before{
+      content:""; position:absolute; right:-80px; top:-80px; width:220px; height:220px; border-radius:50%;
+      background:rgba(56,223,255,.1); filter:blur(14px);
+    }
+    .banner::after{
+      content:""; position:absolute; left:-70px; bottom:-70px; width:180px; height:180px; border-radius:50%;
+      background:rgba(255,79,184,.1); filter:blur(14px);
+    }
+    .banner-copy, .banner-side{position:relative; z-index:1}
+    .banner-copy h2{margin:11px 0 12px; font-size:clamp(1.4rem,2.6vw,2rem); line-height:1.1; letter-spacing:-.035em; text-transform:uppercase}
+    .banner-copy p{margin:0; color:var(--text); line-height:1.68}
+    .banner-side{display:flex; justify-content:flex-end}
+    .banner-pill{
+      display:inline-flex; align-items:center; gap:12px;
+      background:rgba(9,14,28,.68); border:1px solid var(--line); border-radius:18px; padding:14px 16px;
+      font-weight:850; color:#e9f2ff;
+    }
+
+    .section{padding:76px 0; scroll-margin-top:104px}
+    .section-head{max-width:730px; margin-bottom:36px}
+    .section-tag{font-size:.76rem; text-transform:uppercase; letter-spacing:.16em; font-weight:900; color:var(--cyan)}
+    .section-head h2{margin:11px 0 14px; font-size:clamp(1.5rem,3vw,2.2rem); line-height:1.12; letter-spacing:-.035em; text-transform:uppercase}
+    .section-head p{margin:0; color:var(--text); line-height:1.7}
+
+    .program-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px}
+    .program-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.045)); border:1px solid var(--line);
+      border-radius:24px; padding:25px 23px; min-height:225px; position:relative; overflow:hidden;
+    }
+    .program-card::after{
+      content:""; position:absolute; right:-35px; bottom:-35px; width:110px; height:110px; border-radius:50%; background:var(--glow); opacity:.22; filter:blur(8px)
+    }
+    .program-time{display:inline-block; margin-bottom:22px; color:#ffe8a5; font-size:.9rem; font-weight:900; letter-spacing:.06em; text-transform:uppercase}
+    .program-card h3{margin:0 0 10px; font-size:1.08rem; line-height:1.25; text-transform:uppercase}
+    .program-card p{margin:0; color:#c8d5e7; font-size:.92rem; line-height:1.65}
+
+    .transfer-section{padding:54px 0 66px}
+    .transfer-card{
+      display:grid; grid-template-columns:.72fr 1.28fr; gap:30px; align-items:center;
+      background:linear-gradient(145deg, rgba(255,79,184,.1), rgba(56,223,255,.055), rgba(255,207,92,.06));
+      border:1px solid var(--line); border-radius:26px; padding:26px;
+      box-shadow:0 18px 48px rgba(0,0,0,.14);
+    }
+    .transfer-intro{padding:4px 4px 4px 2px}
+    .transfer-intro h2{margin:9px 0 10px; font-size:clamp(1.25rem,2.2vw,1.7rem); line-height:1.12; letter-spacing:-.03em; text-transform:uppercase}
+    .transfer-intro p{margin:0; color:var(--text); font-size:.92rem; line-height:1.65}
+    .bank-compact{
+      background:rgba(8,13,26,.55); border:1px solid rgba(255,255,255,.1); border-radius:20px; padding:18px;
+      backdrop-filter:blur(10px);
+    }
+    .bank-compact-head{display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:15px}
+    .bank-compact-head h3{margin:0; font-size:1rem; text-transform:uppercase; letter-spacing:.04em}
+    .bank-compact-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+    .bank-item{
+      min-width:0; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.08);
+      border-radius:14px; padding:12px 13px;
+    }
+    .bank-item span{display:block; color:#9fb2ca; font-size:.68rem; font-weight:850; text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px}
+    .bank-item strong{display:block; color:#fff; font-size:.88rem; overflow-wrap:anywhere; line-height:1.25}
+    .bank-actions{display:flex; align-items:center; gap:12px; margin-top:11px; flex-wrap:wrap}
+    .bank-actions .btn{min-height:42px; padding:0 14px; font-size:.86rem}
+    .copy-ok{min-height:20px; color:#8df6ae; font-size:.85rem; font-weight:900}
+
+    .reservation-section{padding:58px 0 82px}
+    .reserve-wrap{display:grid; grid-template-columns:.78fr 1.22fr; gap:28px; align-items:start}
+    .reserve-note{
+      position:sticky; top:100px;
+      background:linear-gradient(160deg,#ffcf5c,#ff9720); color:#101724; border-radius:28px; padding:32px; box-shadow:var(--shadow)
+    }
+    .reserve-note .tiny{font-size:.76rem; text-transform:uppercase; letter-spacing:.16em; font-weight:900; color:#5d3700}
+    .reserve-note h2{margin:12px 0 16px; font-size:clamp(1.42rem,2.8vw,1.95rem); line-height:1.12; letter-spacing:-.03em; text-transform:uppercase}
+    .reserve-note .price{font-size:2.25rem; font-weight:1000; letter-spacing:-.05em; line-height:1; margin-top:22px}
+    .reserve-note ul{padding-left:20px; margin:22px 0 0; font-weight:760; line-height:1.64}
+    .reserve-note li + li{margin-top:9px}
+
+    .form-card{background:#f7f9fd; color:#17253a; border-radius:28px; padding:30px; box-shadow:var(--shadow)}
+    .form-head{display:flex; justify-content:space-between; gap:22px; align-items:flex-start; margin-bottom:28px}
+    .form-head h3{margin:0; font-size:1.18rem; line-height:1.25; text-transform:uppercase; letter-spacing:-.02em}
+    .form-head p{margin:7px 0 0; color:#657188; font-size:.9rem; line-height:1.5}
+    .total-pill{white-space:nowrap; background:#e9eff8; border-radius:999px; padding:9px 14px; font-weight:950}
+    .form-grid{display:grid; grid-template-columns:1fr 1fr; column-gap:20px; row-gap:20px}
+    .field{display:grid; gap:9px}
+    .field.full{grid-column:1/-1}
+    label{font-size:.88rem; font-weight:900}
+    .required{color:#d61f69}
+    input,select{
+      width:100%; min-height:54px; padding:0 15px; border-radius:14px; border:1px solid #cfd7e5; background:#fff; color:#17253a; outline:none; transition:.18s;
+    }
+    input:focus,select:focus{border-color:#8a63ff; box-shadow:0 0 0 4px rgba(138,99,255,.12)}
+    input[type=file]{padding:12px; min-height:auto}
+    .help{font-size:.8rem; color:#6d7890}
+    .error{font-size:.8rem; color:#c3144c; font-weight:800; min-height:18px}
+    .receipt-box{border:1px dashed #b8c4d6; background:#eef3fa; border-radius:17px; padding:19px}
+    .receipt-preview{display:none; align-items:center; gap:10px; background:#fff; padding:11px; border-radius:12px; margin-top:12px}
+    .receipt-preview.show{display:flex}
+    .file-dot{width:38px; height:38px; border-radius:10px; background:#dcf8e7; display:grid; place-items:center}
+    .check{display:flex; gap:12px; align-items:flex-start; font-size:.85rem; line-height:1.58; color:#546178; margin:25px 0}
+    .check input{width:18px; height:18px; min-height:auto; margin-top:2px}
+    .form-actions{display:grid; grid-template-columns:1fr auto; gap:14px}
+    .status{display:none; margin-top:14px; padding:13px 14px; border-radius:14px; background:#e2f8e9; color:#126233; font-weight:800}
+    .status.show{display:block}
+
+
+    .cta-wow-section{padding:30px 0 38px}
+    .cta-wow{
+      position:relative; overflow:hidden; border-radius:32px; min-height:440px;
+      border:1px solid rgba(255,255,255,.14); box-shadow:var(--shadow);
+      background:#0f1730;
+      display:grid; grid-template-columns:1.1fr .9fr; align-items:stretch;
+    }
+    .cta-wow-bg{
+      position:absolute; inset:0; background:
+        linear-gradient(90deg, rgba(8,13,26,.92) 0%, rgba(8,13,26,.72) 42%, rgba(8,13,26,.48) 64%, rgba(8,13,26,.68) 100%),
+        url('assets/abba-color-2.png') center 18% / cover fixed no-repeat;
+      transform:scale(1.02);
+    }
+    .cta-wow::before{
+      content:""; position:absolute; inset:0;
+      background:
+        linear-gradient(120deg, rgba(255,79,184,.12), transparent 34%),
+        linear-gradient(240deg, rgba(56,223,255,.1), transparent 38%);
+      pointer-events:none;
+    }
+    .cta-wow-copy,.cta-wow-photo{position:relative; z-index:1}
+    .cta-wow-copy{padding:48px 42px; display:flex; flex-direction:column; justify-content:center}
+    .cta-wow-copy .kicker{
+      display:inline-flex; width:max-content; align-items:center; gap:10px;
+      font-size:.75rem; font-weight:900; text-transform:uppercase; letter-spacing:.16em;
+      color:#ffe8a5; padding:8px 12px; border-radius:999px; background:rgba(255,207,92,.08); border:1px solid rgba(255,207,92,.24);
+    }
+    .cta-wow-copy .kicker i{width:8px; height:8px; border-radius:50%; background:var(--orange); box-shadow:0 0 0 7px rgba(255,154,31,.12)}
+    .cta-wow-copy h2{margin:20px 0 16px; font-size:clamp(1.7rem,3.4vw,2.65rem); line-height:1.05; letter-spacing:-.04em; text-transform:uppercase}
+    .cta-wow-copy h2 span{display:block; color:var(--pink); text-shadow:0 0 22px rgba(255,79,184,.2)}
+    .cta-wow-copy p{margin:0 0 28px; max-width:600px; color:#d8e4f2; font-size:.98rem; line-height:1.7}
+    .cta-wow-actions{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:18px}
+    .cta-wow-points{display:flex; flex-wrap:wrap; gap:10px}
+    .cta-wow-points span{
+      display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:999px;
+      background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#eaf3ff; font-weight:800; font-size:.9rem;
+      backdrop-filter:blur(10px);
+    }
+    .cta-wow-photo{display:flex; align-items:flex-end; justify-content:flex-end; padding:20px}
+    .cta-wow-photo-card{
+      width:min(100%,340px); aspect-ratio:.82; border-radius:28px; overflow:hidden; background:#fff;
+      border:1px solid rgba(255,255,255,.14); box-shadow:0 24px 70px rgba(0,0,0,.32);
+      transform:rotate(2deg);
+    }
+    .cta-wow-photo-card img{width:100%; height:100%; object-fit:cover; object-position:center 18%}
+    .cta-wow-badge{
+      position:absolute; right:26px; top:24px; z-index:2;
+      background:linear-gradient(135deg,var(--gold),var(--orange)); color:#101724;
+      border-radius:18px; padding:12px 14px; font-weight:1000; text-transform:uppercase; letter-spacing:.06em;
+      box-shadow:0 14px 32px rgba(255,154,31,.25);
+    }
+    .cta-wow-badge small{display:block; font-size:.7rem; letter-spacing:.12em}
+    @media (max-width:980px){
+      .cta-wow{grid-template-columns:1fr}
+      .cta-wow-bg{background:
+        linear-gradient(180deg, rgba(8,13,26,.88) 0%, rgba(8,13,26,.7) 52%, rgba(8,13,26,.84) 100%),
+        url('assets/abba-color-2.png') center 18% / cover no-repeat;}
+      .cta-wow-photo{justify-content:flex-start; padding:0 28px 28px}
+    }
+    @media (max-width:740px){
+      .cta-wow{min-height:auto}
+      .cta-wow-copy{padding:34px 24px 22px}
+      .cta-wow-copy h2{font-size:clamp(1.55rem,8vw,2.15rem); line-height:1.08}
+      .cta-wow-photo{padding:0 22px 22px}
+      .cta-wow-photo-card{width:100%; max-width:100%; transform:none}
+      .cta-wow-badge{right:18px; top:18px; font-size:.84rem}
+      .cta-wow-actions{display:grid; grid-template-columns:1fr}
+    }
+    .contact-box{
+      display:grid; gap:4px; margin-top:26px; padding:15px 16px; border-radius:16px;
+      background:rgba(16,23,36,.12); border:1px solid rgba(16,23,36,.14); color:#101724;
+    }
+    .contact-box span{font-size:.75rem; font-weight:900; text-transform:uppercase; letter-spacing:.1em; opacity:.72}
+    .contact-box strong{font-size:.96rem}
+    .status strong{display:block; font-size:1.02rem; margin-bottom:4px}
+    footer{padding:36px 0 96px; border-top:1px solid var(--line); color:#a8b9cf}
+    .footer-grid{display:flex; justify-content:space-between; gap:20px}
+    .footer-grid strong{color:#fff}
+    .credits{max-width:650px; font-size:.76rem}
+    .mobile-cta{display:none; position:fixed; left:12px; right:12px; bottom:12px; z-index:55; padding-bottom:env(safe-area-inset-bottom)}
+    .mobile-cta .btn{width:100%; box-shadow:0 20px 55px rgba(0,0,0,.45)}
+
+    @media (max-width:980px){
+      .hero-grid,.reserve-wrap,.banner,.transfer-card{grid-template-columns:1fr}
+      .bank-compact-grid{grid-template-columns:repeat(2,1fr)}
+      .hero-meta,.program-grid{grid-template-columns:1fr 1fr}
+      .reserve-note{position:relative; top:0}
+      .banner-side{justify-content:flex-start}
+    }
+    @media (max-width:740px){
+      .topbar-inner{padding:12px 0; align-items:flex-start}
+      .brand-block{display:block}
+      .brand-copy{margin-top:10px}
+      .logo-badge{width:64px; height:64px}
+      .nav a:not(.btn){display:none}
+      .hero{padding:36px 0 30px}
+      h1{font-size:clamp(1.9rem, 9vw, 2.65rem); line-height:1.04}
+      .hero-meta,.program-grid,.form-grid,.bank-compact-grid{grid-template-columns:1fr}
+      .transfer-card{padding:20px; gap:22px}
+      .bank-compact-head{align-items:flex-start; flex-direction:column}
+      .hero-card{min-height:440px}
+      .form-head{display:block; margin-bottom:24px}
+      .total-pill{display:inline-block; margin-top:10px}
+      .form-actions{grid-template-columns:1fr}
+      .footer-grid{display:block}
+      .mobile-cta{display:block}
+    }
+    @media (max-width:740px){
+      .section{padding:56px 0; scroll-margin-top:86px}
+      .section-head{margin-bottom:28px}
+      .section-head h2{font-size:clamp(1.42rem,7vw,1.95rem)}
+      .reservation-section{padding:48px 0 64px}
+      .reserve-note,.form-card{padding:22px}
+      .reserve-note h2{font-size:clamp(1.35rem,7vw,1.75rem)}
+      .reserve-note ul{margin-top:18px}
+      .form-grid{row-gap:18px}
+      .hero-content{inset:auto 22px 22px 22px}
+      .hero-title{font-size:clamp(1.4rem,7vw,1.9rem)}
+      .meta-card{min-height:auto}
+      .banner{padding:24px 20px}
+      .cta-wow-points span{font-size:.84rem}
+    }
+
+    /* Ajuste móvil V10: composición más liviana, compacta y fluida */
+    @media (max-width:740px){
+      body{font-size:.94rem}
+      .container{width:min(100% - 22px,1160px)}
+
+      .topbar-inner{
+        min-height:68px;
+        padding:8px 0;
+        align-items:center;
+        gap:10px;
+      }
+      .brand-block{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+      .logo-row{gap:6px;flex-wrap:nowrap}
+      .logo-badge{width:45px;height:45px;padding:5px;border-width:2px;box-shadow:0 7px 18px rgba(0,0,0,.2)}
+      .brand-copy{margin-top:0;min-width:0}
+      .brand-copy strong{font-size:.72rem;line-height:1.2;letter-spacing:.06em}
+      .brand-copy span{display:none}
+      .nav{gap:0;flex:0 0 auto}
+      .nav .btn{min-height:39px;padding:0 11px;border-radius:12px;font-size:.78rem}
+
+      .btn{min-height:44px;padding:0 15px;border-radius:13px;font-size:.88rem}
+
+      .hero{padding:25px 0 22px}
+      .hero-grid{gap:22px}
+      .eyebrow{gap:8px;padding:6px 10px;font-size:.62rem;letter-spacing:.1em}
+      .eyebrow i{width:6px;height:6px;box-shadow:0 0 0 5px rgba(255,154,31,.11)}
+      h1{margin:13px 0 12px;font-size:clamp(1.62rem,7.4vw,2.15rem);line-height:1.04;letter-spacing:-.045em}
+      .lead{margin-bottom:18px;font-size:.9rem;line-height:1.56}
+      .hero-actions{gap:9px;margin-bottom:17px}
+      .hero-actions .btn{flex:1 1 145px}
+      .hero-meta{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+      .meta-card{padding:11px 10px;min-height:78px;border-radius:14px}
+      .meta-card strong{font-size:.82rem;margin-bottom:3px}
+      .meta-card span{font-size:.76rem;line-height:1.35}
+
+      .hero-card{min-height:360px;border-radius:24px}
+      .price-chip{top:14px;right:14px;padding:9px 11px;border-radius:14px}
+      .price-chip small{font-size:.58rem}
+      .price-chip strong{font-size:1.18rem}
+      .hero-content{inset:auto 17px 17px 17px}
+      .hero-tag{font-size:.6rem;letter-spacing:.1em;margin-bottom:7px}
+      .hero-title{font-size:clamp(1.12rem,5.6vw,1.48rem);line-height:1.05;margin-bottom:8px;letter-spacing:-.025em}
+      .hero-note{font-size:.78rem;line-height:1.45}
+
+      .banner-section{padding:13px 0 8px}
+      .banner{padding:18px 16px;border-radius:21px;gap:13px}
+      .banner-copy h2{margin:8px 0 8px;font-size:1.2rem;line-height:1.08}
+      .banner-copy p{font-size:.84rem;line-height:1.5}
+      .banner-pill{padding:10px 12px;border-radius:13px;font-size:.8rem;gap:8px}
+
+      .section{padding:43px 0;scroll-margin-top:76px}
+      .section-head{margin-bottom:21px}
+      .section-tag{font-size:.63rem;letter-spacing:.12em}
+      .section-head h2{margin:8px 0 9px;font-size:clamp(1.18rem,5.6vw,1.48rem);line-height:1.1;letter-spacing:-.025em}
+      .section-head p{font-size:.86rem;line-height:1.52}
+
+      .program-grid{grid-template-columns:1fr;gap:10px}
+      .program-card{min-height:auto;padding:17px 16px;border-radius:18px}
+      .program-time{margin-bottom:10px;font-size:.72rem}
+      .program-card h3{font-size:.95rem;margin-bottom:6px}
+      .program-card p{font-size:.82rem;line-height:1.48}
+
+      .transfer-section{padding:34px 0 38px}
+      .transfer-card{padding:16px;gap:15px;border-radius:21px}
+      .transfer-intro h2{margin:7px 0 7px;font-size:1.15rem;line-height:1.08}
+      .transfer-intro p{font-size:.82rem;line-height:1.48}
+      .bank-compact{padding:13px;border-radius:16px}
+      .bank-compact-head{margin-bottom:11px;gap:7px}
+      .bank-compact-head h3{font-size:.86rem}
+      .bank-compact-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .bank-item{padding:9px 10px;border-radius:12px}
+      .bank-item span{font-size:.58rem;letter-spacing:.06em}
+      .bank-item strong{font-size:.76rem;line-height:1.25}
+      .bank-actions{gap:8px;margin-top:9px}
+      .bank-actions .btn{min-height:38px;padding:0 11px;font-size:.76rem}
+      .copy-ok{font-size:.76rem}
+
+      .reservation-section{padding:39px 0 52px}
+      .reserve-wrap{gap:15px}
+      .reserve-note{padding:18px;border-radius:21px}
+      .reserve-note .tiny{font-size:.62rem;letter-spacing:.12em}
+      .reserve-note h2{margin:8px 0 10px;font-size:1.2rem;line-height:1.1;letter-spacing:-.02em}
+      .reserve-note .price{font-size:1.75rem;margin-top:13px}
+      .reserve-note ul{margin:13px 0 0;padding-left:18px;font-size:.82rem;line-height:1.48}
+      .reserve-note li + li{margin-top:5px}
+      .contact-box{margin-top:15px;padding:11px 12px;border-radius:13px}
+      .contact-box span{font-size:.62rem}
+      .contact-box strong{font-size:.84rem}
+
+      .form-card{padding:18px;border-radius:21px}
+      .form-head{margin-bottom:18px}
+      .form-head h3{font-size:1rem;line-height:1.2}
+      .form-head p{margin-top:5px;font-size:.8rem}
+      .total-pill{margin-top:8px;padding:7px 11px;font-size:.82rem}
+      .form-grid{row-gap:13px;column-gap:13px}
+      .field{gap:6px}
+      label{font-size:.8rem}
+      input,select{min-height:47px;padding:0 12px;border-radius:12px;font-size:.88rem}
+      input[type=file]{padding:10px;font-size:.78rem}
+      .help{font-size:.72rem;line-height:1.4}
+      .error{font-size:.72rem;min-height:14px}
+      .receipt-box{padding:13px;border-radius:14px}
+      .receipt-preview{padding:9px;margin-top:9px}
+      .file-dot{width:32px;height:32px}
+      .check{gap:9px;margin:17px 0;font-size:.76rem;line-height:1.45}
+      .check input{width:16px;height:16px}
+      .form-actions{gap:9px}
+      .status{padding:11px 12px;font-size:.8rem}
+      .status strong{font-size:.9rem}
+
+      .cta-wow-section{padding:17px 0 24px}
+      .cta-wow{border-radius:23px}
+      .cta-wow-copy{padding:24px 18px 16px}
+      .cta-wow-copy .kicker{padding:6px 9px;font-size:.6rem;letter-spacing:.1em}
+      .cta-wow-copy h2{margin:13px 0 10px;font-size:clamp(1.22rem,5.9vw,1.52rem);line-height:1.06;letter-spacing:-.025em}
+      .cta-wow-copy p{margin-bottom:18px;font-size:.82rem;line-height:1.5}
+      .cta-wow-actions{gap:8px;margin-bottom:13px}
+      .cta-wow-actions .btn{width:100%}
+      .cta-wow-points{gap:7px}
+      .cta-wow-points span{padding:8px 9px;font-size:.72rem;gap:6px}
+      .cta-wow-photo{padding:0 16px 16px}
+      .cta-wow-photo-card{height:225px;aspect-ratio:auto;border-radius:18px}
+      .cta-wow-badge{right:13px;top:13px;padding:8px 10px;border-radius:13px;font-size:.68rem}
+      .cta-wow-badge small{font-size:.55rem}
+
+      footer{padding:27px 0 82px;font-size:.78rem}
+      .footer-grid{gap:13px}
+      .credits{font-size:.68rem;margin-top:10px}
+      .mobile-cta{left:9px;right:9px;bottom:9px}
+      .mobile-cta .btn{min-height:45px;font-size:.84rem}
+    }
+
+    @media (max-width:420px){
+      .container{width:min(100% - 18px,1160px)}
+      .logo-badge{width:40px;height:40px}
+      .brand-copy strong{font-size:.66rem}
+      .nav .btn{min-height:37px;padding:0 9px;font-size:.72rem}
+      h1{font-size:1.55rem}
+      .hero-meta{gap:7px}
+      .meta-card{padding:9px;min-height:73px}
+      .meta-card strong{font-size:.76rem}
+      .meta-card span{font-size:.7rem}
+      .hero-card{min-height:335px}
+      .bank-compact-grid{grid-template-columns:1fr 1fr}
+      .form-card,.reserve-note{padding:16px}
+      .cta-wow-photo-card{height:205px}
+    }
+
+    @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{transition:none!important} }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand-block">
+        <div class="logo-row" aria-label="Organizadores del evento">
+          <div class="logo-badge"><img src="assets/logo-san-gabriel.png" alt="Club Deportivo Social y Cultural San Gabriel"></div>
+          <div class="logo-badge"><img src="assets/logo-ciclon.jpeg" alt="Ciclón Producciones"></div>
+          <div class="logo-badge"><img src="assets/logo-la-casona.jpeg" alt="Club La Casona Los Ángeles"></div>
+        </div>
+        <div class="brand-copy">
+          <strong>Fiesta Ochentera Solidaria</strong>
+          <span>Club La Casona · Los Ángeles · 24 de julio 2026</span>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Navegación principal">
+        <a href="#programa">Programa</a>
+        <a href="#aporte">Aporte</a>
+        <a href="#reservar" class="btn btn-primary">Reservar mesa</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><i></i> Evento benéfico · cupos limitados</div>
+          <h1>Gran <span class="accent">Fiesta Ochentera</span></h1>
+          <p class="lead">
+            El próximo <strong>viernes 24 de julio de 2026</strong> desde las <strong>21:00 horas</strong>, en <strong>Club La Casona de Los Ángeles</strong>, viviremos una noche inolvidable con bingo, karaoke, tributo internacional a ABBA y fiesta bailable hasta las <strong>05:00 A.M.</strong>
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#reservar">Reservar por $6.000</a>
+            <a class="btn btn-secondary" href="#programa">Ver programa</a>
+          </div>
+          <div class="hero-meta">
+            <div class="meta-card"><strong>📍 Lugar</strong><span>Club La Casona · Los Ángeles</span></div>
+            <div class="meta-card"><strong>🕘 Horario</strong><span>Desde las 21:00 hasta las 05:00 A.M.</span></div>
+            <div class="meta-card"><strong>🎤 Show</strong><span>Dúo Calix Rox · Tributo Internacional a ABBA</span></div>
+            <div class="meta-card"><strong>🎟️ Entrada</strong><span>$6.000 por persona</span></div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <article class="hero-card" aria-label="Imagen principal del evento">
+            <div class="hero-photo"></div>
+            <div class="hero-overlay"></div>
+            <div class="scanlines"></div>
+            <div class="price-chip"><small>Entrada</small><strong>$6.000</strong></div>
+            <div class="hero-content">
+              <div class="hero-tag">Bingo · Karaoke · Show Tributo · Baile</div>
+              <h2 class="hero-title">Dúo Calix Rox <span>Tributo Internacional a ABBA</span></h2>
+              <div class="hero-note">Una noche temática con espíritu retro, estética disco y un propósito solidario para apoyar a tenimesistas angelinos rumbo al Abierto de Asunción, Paraguay.</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="banner-section">
+      <div class="container">
+        <div class="banner">
+          <div class="banner-copy">
+            <div class="section-tag">Noche retro con causa</div>
+            <h2>Más elegante, más ordenado y con una estética ochentera profesional.</h2>
+            <p>Completa tu solicitud, adjunta el comprobante y espera la revisión. Cuando sea aprobada, recibirás tu entrada virtual por correo electrónico.</p>
+          </div>
+          <div class="banner-side">
+            <a class="banner-pill" href="https://wa.me/56956271248" target="_blank" rel="noopener">📲 Contacto: <strong>+56 9 5627 1248</strong></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <section class="cta-wow-section" aria-label="Llamado destacado para reservar">
+      <div class="container">
+        <div class="cta-wow">
+          <div class="cta-wow-bg"></div>
+          <div class="cta-wow-badge"><small>Noche única</small>24 Julio</div>
+          <div class="cta-wow-copy">
+            <div class="kicker"><i></i> Vive la noche más esperada</div>
+            <h2>Una noche para cantar, bailar y ayudar <span>¡Reserva ahora y súmate a esta gran fiesta!</span></h2>
+            <p>
+              Un evento con estética retro, energía disco y un gran propósito: apoyar a los tenimesistas angelinos que viajarán al Abierto de Asunción, Paraguay. Vive el bingo, el karaoke, el tributo internacional a ABBA y una pista llena de clásicos hasta las 05:00 A.M.
+            </p>
+            <div class="cta-wow-actions">
+              <a class="btn btn-primary" href="#reservar">Quiero mi mesa</a>
+              <a class="btn btn-secondary" href="#aporte">Ver datos de transferencia</a>
+            </div>
+            <div class="cta-wow-points">
+              <span>🎤 Tributo a ABBA</span>
+              <span>🪩 Fiesta bailable</span>
+              <span>🎟️ $6.000 por persona</span>
+            </div>
+          </div>
+          <div class="cta-wow-photo">
+            <div class="cta-wow-photo-card">
+              <img src="assets/abba-color-3.png" alt="Foto destacada colorida del grupo ABBA">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section transfer-section" id="aporte">
+      <div class="container">
+        <div class="transfer-card">
+          <div class="transfer-intro">
+            <div class="section-tag">Transferencia y aporte</div>
+            <h2>Reserva de forma rápida.</h2>
+            <p>Tu entrada apoya la participación de tenimesistas angelinos en el Abierto de Asunción, Paraguay.</p>
+          </div>
+
+          <article class="bank-compact" aria-label="Datos bancarios para la reserva">
+            <div class="bank-compact-head">
+              <h3>Cuenta Vista BancoEstado</h3>
+              <strong>$6.000 por persona</strong>
+            </div>
+            <div class="bank-compact-grid">
+              <div class="bank-item"><span>Titular</span><strong>Ciclón Producciones SPA</strong></div>
+              <div class="bank-item"><span>RUT</span><strong>77.775.347-9</strong></div>
+              <div class="bank-item"><span>Cuenta N°</span><strong>90276262938</strong></div>
+            </div>
+            <div class="bank-actions">
+              <button class="btn btn-secondary" id="copyBank" type="button">Copiar datos</button>
+              <div class="copy-ok" id="copyStatus" aria-live="polite"></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section reservation-section" id="reservar">
+      <div class="container reserve-wrap">
+        <aside class="reserve-note">
+          <div class="tiny">Solicitud de reserva</div>
+          <h2>Tu solicitud será revisada antes de emitir la entrada.</h2>
+          <div class="price">$6.000</div>
+          <strong>por persona</strong>
+          <ul>
+            <li>Completa tus datos y adjunta el comprobante de transferencia.</li>
+            <li>El equipo organizador revisará la información y validará el pago.</li>
+            <li>Al ser aprobada la solicitud, se generará una entrada virtual.</li>
+            <li>La entrada será enviada al correo electrónico informado.</li>
+          </ul>
+          <a class="contact-box" href="https://wa.me/56956271248" target="_blank" rel="noopener">
+            <span>¿Tienes dudas?</span>
+            <strong>Contacto: +56 9 5627 1248</strong>
+          </a>
+        </aside>
+
+        <form class="form-card" id="reservationForm" novalidate>
+          <div class="form-head">
+            <div>
+              <h3>Formulario de reserva</h3>
+              <p>Los campos marcados con * son obligatorios.</p>
+            </div>
+            <span class="total-pill">Total: <strong id="totalText">$6.000</strong></span>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Nombre completo <span class="required">*</span></label>
+              <input id="name" name="name" autocomplete="name" placeholder="Ej: Andrea González" required>
+              <div class="error" id="nameError"></div>
+            </div>
+
+            <div class="field">
+              <label for="rut">RUT <span class="required">*</span></label>
+              <input id="rut" name="rut" placeholder="12.345.678-9" maxlength="12" required>
+              <div class="error" id="rutError"></div>
+            </div>
+
+            <div class="field">
+              <label for="phone">Teléfono de contacto <span class="required">*</span></label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+56 9 1234 5678" required>
+              <div class="error" id="phoneError"></div>
+            </div>
+
+            <div class="field">
+              <label for="people">Reservar mesa para <span class="required">*</span></label>
+              <select id="people" name="people" required>
+                <option value="1">1 persona</option><option value="2">2 personas</option><option value="3">3 personas</option><option value="4">4 personas</option><option value="5">5 personas</option><option value="6">6 personas</option><option value="7">7 personas</option><option value="8">8 personas</option><option value="9">9 personas</option><option value="10">10 personas</option><option value="11">11 personas</option><option value="12">12 personas</option><option value="13">13 personas</option><option value="14">14 personas</option><option value="15">15 personas</option><option value="16">16 personas</option><option value="17">17 personas</option><option value="18">18 personas</option><option value="19">19 personas</option><option value="20">20 personas</option>
+              </select>
+              <div class="help">Para grupos grandes, puedes coordinar directamente por WhatsApp.</div>
+            </div>
+
+            <div class="field full">
+              <label for="email">Correo electrónico <span class="required">*</span></label>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="ejemplo@correo.cl" required>
+              <div class="help">Aquí recibirás la entrada virtual cuando tu solicitud sea aprobada.</div>
+              <div class="error" id="emailError"></div>
+            </div>
+
+            <div class="field full">
+              <label for="receipt">Comprobante de transferencia</label>
+              <div class="receipt-box">
+                <input id="receipt" name="receipt" type="file" accept="image/*,.pdf" required>
+                <div class="help">Adjunta aquí el comprobante. Será revisado junto con tu solicitud; no necesitas enviarlo por WhatsApp.</div>
+                <div class="receipt-preview" id="receiptPreview">
+                  <span class="file-dot">✓</span>
+                  <div><strong id="receiptName"></strong><div class="help" id="receiptSize"></div></div>
+                </div>
+                <div class="error" id="receiptError"></div>
+              </div>
+            </div>
+          </div>
+
+          <label class="check">
+            <input id="confirm" type="checkbox" required>
+            <span>Confirmo que los datos son correctos y autorizo la revisión del comprobante. Entiendo que la entrada virtual se emitirá únicamente si la solicitud es aprobada.</span>
+          </label>
+          <div class="error" id="confirmError"></div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Enviar solicitud de reserva</button>
+            <button class="btn btn-secondary" type="button" id="saveData" style="color:#17253a;border-color:#cfd7e5">Guardar datos</button>
+          </div>
+          <div class="status" id="formStatus" aria-live="polite"></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="programa">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-tag">Programa del evento</div>
+          <h2>Una experiencia completa de principio a fin.</h2>
+          <p>La actividad comienza con bingo, continúa con karaoke, sigue con el tributo a ABBA y termina con fiesta bailable hasta el amanecer.</p>
+        </div>
+        <div class="program-grid">
+          <article class="program-card" style="--glow:#ffcf5c">
+            <span class="program-time">21:00 horas</span>
+            <h3>Bingo</h3>
+            <p>Iniciamos la noche con una actividad entretenida, ideal para compartir y comenzar el ambiente festivo.</p>
+          </article>
+          <article class="program-card" style="--glow:#38dfff">
+            <span class="program-time">Luego del bingo</span>
+            <h3>Karaoke</h3>
+            <p>El escenario se abre para disfrutar canciones inolvidables y encender aún más la fiesta.</p>
+          </article>
+          <article class="program-card" style="--glow:#ff4fb8">
+            <span class="program-time">Show principal</span>
+            <h3>Dúo Calix Rox</h3>
+            <p>Tributo internacional al grupo ABBA con toda la energía, nostalgia y esencia de una gran noche disco.</p>
+          </article>
+          <article class="program-card" style="--glow:#8a63ff">
+            <span class="program-time">Hasta las 05:00 A.M.</span>
+            <h3>Fiesta bailable</h3>
+            <p>La celebración continúa con música y pista abierta para disfrutar una madrugada inolvidable.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <strong>Fiesta Ochentera Solidaria</strong><br>
+        Viernes 24 de julio de 2026 · Desde las 21:00 horas · Club La Casona · Los Ángeles
+      </div>
+      <div class="credits">
+        Sitio promocional para solicitar reservas del evento benéfico. Las solicitudes quedan sujetas a revisión y aprobación antes de emitir la entrada virtual.
+      </div>
+    </div>
+  </footer>
+
+  <div class="mobile-cta"><a class="btn btn-primary" href="#reservar">Reservar mesa · $6.000 p/p</a></div>
+
+  <script>
+    (() => {
+      const price = 6000;
+      const $ = (id) => document.getElementById(id);
+      const form = $('reservationForm');
+      const people = $('people');
+      const receipt = $('receipt');
+      const money = (n) => new Intl.NumberFormat('es-CL', {
+        style: 'currency', currency: 'CLP', maximumFractionDigits: 0
+      }).format(n);
+
+      function updateTotal() {
+        $('totalText').textContent = money(Number(people.value) * price);
+      }
+      people.addEventListener('change', updateTotal);
+      updateTotal();
+
+      function formatRut(value) {
+        let clean = value.replace(/[^0-9kK]/g, '').toUpperCase();
+        if (clean.length <= 1) return clean;
+        const dv = clean.slice(-1);
+        let body = clean.slice(0, -1);
+        body = body.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        return `${body}-${dv}`;
+      }
+
+      function validRut(rut) {
+        const clean = rut.replace(/\./g, '').replace('-', '').toUpperCase();
+        if (!/^\d{7,8}[0-9K]$/.test(clean)) return false;
+        const body = clean.slice(0, -1);
+        const dv = clean.slice(-1);
+        let sum = 0;
+        let multiplier = 2;
+        for (let i = body.length - 1; i >= 0; i--) {
+          sum += Number(body[i]) * multiplier;
+          multiplier = multiplier === 7 ? 2 : multiplier + 1;
+        }
+        const result = 11 - (sum % 11);
+        const expected = result === 11 ? '0' : result === 10 ? 'K' : String(result);
+        return dv === expected;
+      }
+
+      function createRequestCode() {
+        const date = new Date();
+        const stamp = [
+          date.getFullYear().toString().slice(-2),
+          String(date.getMonth() + 1).padStart(2, '0'),
+          String(date.getDate()).padStart(2, '0')
+        ].join('');
+        const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+        return `FO-${stamp}-${random}`;
+      }
+
+      $('rut').addEventListener('input', (event) => {
+        event.target.value = formatRut(event.target.value);
+      });
+
+      receipt.addEventListener('change', () => {
+        const file = receipt.files[0];
+        $('receiptError').textContent = '';
+        if (!file) {
+          $('receiptPreview').classList.remove('show');
+          return;
+        }
+        $('receiptName').textContent = file.name;
+        $('receiptSize').textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+        $('receiptPreview').classList.add('show');
+      });
+
+      function validate() {
+        let ok = true;
+        const name = $('name').value.trim();
+        const rut = $('rut').value.trim();
+        const phone = $('phone').value.trim().replace(/\s/g, '');
+        const email = $('email').value.trim();
+
+        ['nameError', 'rutError', 'phoneError', 'emailError', 'receiptError', 'confirmError']
+          .forEach((id) => { $(id).textContent = ''; });
+
+        if (name.length < 4) {
+          $('nameError').textContent = 'Ingresa tu nombre completo.';
+          ok = false;
+        }
+        if (!validRut(rut)) {
+          $('rutError').textContent = 'Ingresa un RUT chileno válido.';
+          ok = false;
+        }
+        if (!/^(?:\+?56)?9\d{8}$/.test(phone.replace(/[()-]/g, ''))) {
+          $('phoneError').textContent = 'Ingresa un teléfono válido, idealmente con +56.';
+          ok = false;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+          $('emailError').textContent = 'Ingresa un correo electrónico válido.';
+          ok = false;
+        }
+        if (!receipt.files[0]) {
+          $('receiptError').textContent = 'Adjunta el comprobante para que la solicitud pueda ser revisada.';
+          ok = false;
+        }
+        if (!$('confirm').checked) {
+          $('confirmError').textContent = 'Debes aceptar el proceso de revisión antes de continuar.';
+          ok = false;
+        }
+        return ok;
+      }
+
+      function saveDraft(status = 'borrador') {
+        const data = {
+          code: localStorage.getItem('fiestaOchenteraCodigo') || '',
+          status,
+          name: $('name').value.trim(),
+          rut: $('rut').value.trim(),
+          phone: $('phone').value.trim(),
+          email: $('email').value.trim(),
+          people: people.value,
+          total: Number(people.value) * price,
+          receiptName: receipt.files[0]?.name || '',
+          updatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('fiestaOchenteraSolicitud', JSON.stringify(data));
+        return data;
+      }
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!validate()) {
+          form.querySelector('.error:not(:empty)')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+
+        const code = createRequestCode();
+        localStorage.setItem('fiestaOchenteraCodigo', code);
+        const request = saveDraft('pendiente_de_revision');
+        request.code = code;
+        localStorage.setItem('fiestaOchenteraSolicitud', JSON.stringify(request));
+
+        $('formStatus').innerHTML = `<strong>Solicitud preparada para revisión · ${code}</strong>
+          Tus datos y el nombre del comprobante quedaron guardados en este dispositivo. Cuando el sistema de recepción esté conectado y la solicitud sea aprobada, la entrada virtual deberá enviarse a <b>${request.email}</b>.`;
+        $('formStatus').classList.add('show');
+        $('formStatus').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+
+      $('saveData').addEventListener('click', () => {
+        saveDraft('borrador');
+        $('formStatus').innerHTML = '<strong>Borrador guardado</strong>Tus datos quedaron almacenados en este dispositivo para continuar más tarde.';
+        $('formStatus').classList.add('show');
+      });
+
+      const saved = localStorage.getItem('fiestaOchenteraSolicitud');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          $('name').value = data.name || '';
+          $('rut').value = data.rut || '';
+          $('phone').value = data.phone || '';
+          $('email').value = data.email || '';
+          people.value = data.people || '1';
+          updateTotal();
+        } catch (_) {}
+      }
+
+      $('copyBank').addEventListener('click', async () => {
+        const data = [
+          'Cuenta Vista BancoEstado',
+          'Nombre: Ciclón Producciones SPA',
+          'RUT: 77.775.347-9',
+          'Cuenta N°: 90276262938',
+          'Valor: $6.000 por persona'
+        ].join('\n');
+        try {
+          await navigator.clipboard.writeText(data);
+          $('copyStatus').textContent = '✓ Datos copiados al portapapeles.';
+        } catch (_) {
+          $('copyStatus').textContent = 'No fue posible copiar automáticamente. Copia los datos manualmente.';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
