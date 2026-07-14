@@ -1,0 +1,8 @@
+DirectoryIndex index.php index.html
+RewriteEngine On
+
+# Equivalentes cuando DocumentRoot apunta a /public.
+RewriteRule ^admin/login/?$ admin/login/index.php [L,QSA]
+RewriteRule ^admin/forgot-password/?$ admin/forgot-password/index.php [L,QSA]
+RewriteRule ^admin/reset-password/?$ admin/reset-password/index.php [L,QSA]
+RewriteRule ^admin/?$ admin/index.php [L,QSA]
