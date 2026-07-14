@@ -102,7 +102,9 @@ CREATE TABLE IF NOT EXISTS reservas (
 
 CREATE TABLE IF NOT EXISTS entradas (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  ticket_code VARCHAR(40) NULL,
   reserva_id BIGINT UNSIGNED NOT NULL,
+  holder_name VARCHAR(160) NULL,
   qr_token_hash CHAR(64) NOT NULL,
   status ENUM('issued','entered','exited','void') NOT NULL DEFAULT 'issued',
   issued_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -110,7 +112,20 @@ CREATE TABLE IF NOT EXISTS entradas (
   exited_at DATETIME NULL,
   scanned_by BIGINT UNSIGNED NULL,
   UNIQUE KEY uq_entradas_qr_token_hash (qr_token_hash),
+  KEY idx_entradas_ticket_code (ticket_code),
   KEY idx_entradas_status (status),
   CONSTRAINT fk_entradas_reserva FOREIGN KEY (reserva_id) REFERENCES reservas(id) ON DELETE CASCADE,
   CONSTRAINT fk_entradas_scanner FOREIGN KEY (scanned_by) REFERENCES admin_users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS admin_settings (
+  setting_key VARCHAR(80) PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT IGNORE INTO admin_settings (setting_key, setting_value) VALUES
+  ('event_name', 'Fiesta Ochentera Solidaria'),
+  ('sales_mode', 'Reservas con confirmación'),
+  ('notifications', 'Activas');
+

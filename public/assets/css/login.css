@@ -349,3 +349,17 @@ body.login-body {
 .settings-list span { color: #ffe8a5; font-size: .76rem; font-weight: 900; }
 @media (max-width: 992px) { .admin-layout { grid-template-columns: 1fr; } .admin-sidebar { position: static; display: grid; grid-template-columns: repeat(2,1fr); } .admin-actions-grid { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 680px) { .admin-navbar, .admin-hero-row, .admin-section-heading, .scanner-module { align-items: stretch; flex-direction: column; display: flex; } .admin-sidebar, .admin-actions-grid, .admin-stats-grid { grid-template-columns: 1fr; } .admin-user-name { display: none; } .auth-panel { padding: .85rem; } }
+.admin-alert { margin: 0 0 .8rem; padding: .72rem .85rem; border-radius: .9rem; font-size: .86rem; font-weight: 850; }
+.admin-alert.is-warning { color: #ffe8a5; border: 1px solid rgba(255,207,92,.28); background: rgba(255,207,92,.08); }
+.admin-alert.is-ok { color: #dcfce7; border: 1px solid rgba(74,222,128,.28); background: rgba(74,222,128,.08); }
+.inline-form { display: flex; gap: .4rem; align-items: center; }
+.inline-form button, .admin-select { min-height: 34px; border: 1px solid rgba(255,255,255,.14); border-radius: .65rem; background: rgba(255,255,255,.08); color: #fff; font-weight: 850; }
+.inline-form button { padding: 0 .6rem; color: #12192c; background: linear-gradient(135deg,var(--gold),var(--orange)); border: 0; }
+.scanner-result { margin-top: .75rem; padding: .72rem .85rem; border-radius: .9rem; font-weight: 900; }
+.scanner-result.is-ok { color: #052e16; background: var(--green); }
+.scanner-result.is-error { color: #fff1f2; background: rgba(251,113,133,.18); border: 1px solid rgba(251,113,133,.3); }
+.status-pill.is-approved, .status-pill.is-issued { color: #052e16; background: var(--green); }
+.status-pill.is-rejected, .status-pill.is-cancelled, .status-pill.is-void { color: #fff1f2; background: var(--danger); }
+.status-pill.is-entered { color: #07111f; background: var(--cyan); }
+.admin-footer { display: flex; justify-content: space-between; gap: 1rem; padding: 0 0 calc(1rem + env(safe-area-inset-bottom)); color: var(--muted); font-size: .78rem; font-weight: 850; }
+@media (max-width: 680px) { .inline-form, .admin-footer { flex-direction: column; align-items: stretch; } }

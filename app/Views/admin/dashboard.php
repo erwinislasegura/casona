@@ -64,6 +64,9 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
         <button type="button" class="pwa-button" data-install-pwa>Instalar aplicación</button>
       </div>
 
+      <?php if (!empty($dbWarning)): ?><div class="admin-alert is-warning"><?= htmlspecialchars($dbWarning, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+      <?php if (!empty($flash)): ?><div class="admin-alert is-ok"><?= htmlspecialchars($flash, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
+
       <div class="admin-actions-grid">
         <a class="admin-action is-warning" href="<?= $basePath ?>/admin/reservas?status=pending"><strong>Solicitudes pendientes</strong><span>Ver reservas por confirmar</span></a>
         <a class="admin-action" href="<?= $basePath ?>/admin/scanner"><strong>Escanear entradas</strong><span>Validación QR</span></a>
@@ -82,6 +85,8 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
     <a href="<?= $basePath ?>/admin/entradas">Entradas</a>
     <a href="<?= $basePath ?>/admin/logout">Salir</a>
   </nav>
+
+  <footer class="admin-footer container"><span>Fiesta Ochentera Solidaria · Ciclón Producciones</span><span>Panel seguro · v<?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?></span></footer>
 
   <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
