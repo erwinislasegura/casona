@@ -4,7 +4,7 @@ $appVersion = $appVersion ?? '1.0.0';
 $userName = $userName ?? 'Administrador';
 $module = $module ?? 'inicio';
 $modules = [
-    'registros' => ['title' => 'Registros onepage', 'description' => 'Administra solicitudes del formulario público, estados y entradas PDF.', 'icon' => '▤', 'badge' => 'PDF'],
+    'registros' => ['title' => 'Registros onepage', 'description' => 'Administra solicitudes del formulario público, estados y entradas públicas por correo.', 'icon' => '▤', 'badge' => 'HTML'],
     'usuarios' => ['title' => 'Usuarios y roles', 'description' => 'Gestiona cuentas administrativas, estados y permisos.', 'icon' => '◉', 'badge' => 'ADM'],
 ];
 $sidebarGroups = [

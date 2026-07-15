@@ -2,6 +2,7 @@
 session_start();
 require_once __DIR__ . '/../config/paths.php';
 require_once __DIR__ . '/../app/Models/AdminPanelRepository.php';
+require_once __DIR__ . '/../app/Support/TicketSupport.php';
 
 function pdf_escape(string $text): string
 {
@@ -353,7 +354,7 @@ try {
         $action = (string)($_POST['action'] ?? '');
         if ($action === 'update_reserva') {
             $panelRepository->updateReservaStatus((int)($_POST['reserva_id'] ?? 0), (string)($_POST['status'] ?? 'pending'));
-            $_SESSION['admin_flash'] = ((string)($_POST['status'] ?? '') === 'approved') ? 'Registro aprobado y entrada PDF generada correctamente.' : 'Registro actualizado correctamente.';
+            $_SESSION['admin_flash'] = ((string)($_POST['status'] ?? '') === 'approved') ? 'Registro aprobado; se creó la entrada pública y se envió el correo HTML.' : 'Registro actualizado correctamente.';
             header('Location: ' . app_url('/admin/registros'));
             exit;
         }

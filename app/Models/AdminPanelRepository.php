@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/ReservationRepository.php';
+require_once __DIR__ . '/../Support/TicketSupport.php';
 
 final class AdminPanelRepository
 {
@@ -41,7 +42,7 @@ final class AdminPanelRepository
         return [
             'stats' => [
                 ['label' => 'Pendientes', 'value' => (string)$pending, 'hint' => 'Por revisar'],
-                ['label' => 'Aprobadas', 'value' => (string)$approved, 'hint' => 'Con entrada PDF'],
+                ['label' => 'Aprobadas', 'value' => (string)$approved, 'hint' => 'Con entrada pública'],
                 ['label' => 'Rechazadas', 'value' => (string)$rejected, 'hint' => 'No aprobadas'],
             ],
             'reservas' => $this->reservas(),
@@ -56,12 +57,12 @@ final class AdminPanelRepository
     public function reservas(?string $status = null): array
     {
         if ($status !== null && in_array($status, ['pending', 'approved', 'rejected', 'cancelled'], true)) {
-            $stmt = $this->db->prepare('SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas WHERE status = :status ORDER BY created_at DESC LIMIT 50');
+            $stmt = $this->db->prepare("SELECT r.id, r.request_code, r.full_name, r.rut, r.phone, r.email, r.people_count, r.total_amount, r.status, r.receipt_path, r.receipt_name, r.created_at, (SELECT e.qr_token FROM entradas e WHERE e.reserva_id = r.id AND e.status <> 'void' ORDER BY e.id ASC LIMIT 1) AS qr_token FROM reservas r WHERE status = :status ORDER BY created_at DESC LIMIT 50");
             $stmt->execute(['status' => $status]);
             return $stmt->fetchAll();
         }
 
-        return $this->db->query("SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas ORDER BY created_at DESC LIMIT 50")->fetchAll();
+        return $this->db->query("SELECT r.id, r.request_code, r.full_name, r.rut, r.phone, r.email, r.people_count, r.total_amount, r.status, r.receipt_path, r.receipt_name, r.created_at, (SELECT e.qr_token FROM entradas e WHERE e.reserva_id = r.id AND e.status <> 'void' ORDER BY e.id ASC LIMIT 1) AS qr_token FROM reservas r ORDER BY created_at DESC LIMIT 50")->fetchAll();
     }
 
     public function entradas(): array
@@ -102,6 +103,37 @@ final class AdminPanelRepository
         return $reservation;
     }
 
+
+    public function publicTicketByToken(string $token): ?array
+    {
+        (new ReservationRepository($this->db))->ensureReservationTables();
+        $hash = hash('sha256', trim($token));
+        $stmt = $this->db->prepare("SELECT r.id, r.request_code, r.full_name, r.email, r.people_count, r.status AS reservation_status, e.id AS ticket_id, e.ticket_code, e.holder_name, e.qr_token, e.status, e.issued_at FROM entradas e JOIN reservas r ON r.id = e.reserva_id WHERE e.qr_token_hash = :hash AND e.status <> 'void' LIMIT 1");
+        $stmt->execute(['hash' => $hash]);
+        $row = $stmt->fetch();
+        if (!$row || $row['reservation_status'] !== 'approved') return null;
+        return [
+            'reservation' => ['id' => $row['id'], 'request_code' => $row['request_code'], 'full_name' => $row['full_name'], 'email' => $row['email'], 'people_count' => $row['people_count'], 'status' => $row['reservation_status']],
+            'ticket' => ['id' => $row['ticket_id'], 'ticket_code' => $row['ticket_code'], 'holder_name' => $row['holder_name'], 'qr_token' => $row['qr_token'], 'status' => $row['status'], 'issued_at' => $row['issued_at']],
+        ];
+    }
+
+    private function sendTicketEmail(int $id): void
+    {
+        $reservation = $this->reservaWithTickets($id);
+        if (!$reservation || empty($reservation['email']) || empty($reservation['tickets'][0]['qr_token'])) return;
+        $ticket = $reservation['tickets'][0];
+        $ticketUrl = ticket_public_url((string)$ticket['qr_token']);
+        $subject = 'Tu entrada Fiesta Ochentera Solidaria';
+        $body = ticket_html($reservation, $ticket, $ticketUrl, true);
+        $headers = [
+            'MIME-Version: 1.0',
+            'Content-type: text/html; charset=UTF-8',
+            'From: Fiesta Ochentera <no-reply@' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . '>',
+        ];
+        @mail((string)$reservation['email'], $subject, $body, implode("\r\n", $headers));
+    }
+
     public function reservaReceipt(int $id): ?array
     {
         $stmt = $this->db->prepare('SELECT receipt_path, receipt_name, receipt_mime, receipt_blob FROM reservas WHERE id = :id LIMIT 1');
@@ -138,6 +170,7 @@ final class AdminPanelRepository
 
         if ($status === 'approved') {
             $this->issueTicketsForReservation($id);
+            $this->sendTicketEmail($id);
         } elseif (in_array($status, ['rejected', 'cancelled'], true)) {
             $void = $this->db->prepare("UPDATE entradas SET status = 'void' WHERE reserva_id = :id AND status = 'issued'");
             $void->execute(['id' => $id]);
