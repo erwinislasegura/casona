@@ -32,12 +32,20 @@ final class AdminPanelRepository
 
     public function dashboardData(): array
     {
+        $this->ensurePanelTables();
         $this->ensureAdminUsersTable();
+        $pending = (int)$this->db->query("SELECT COUNT(*) FROM reservas WHERE status = 'pending'")->fetchColumn();
+        $approved = (int)$this->db->query("SELECT COUNT(*) FROM reservas WHERE status = 'approved'")->fetchColumn();
+        $rejected = (int)$this->db->query("SELECT COUNT(*) FROM reservas WHERE status = 'rejected'")->fetchColumn();
 
         return [
-            'stats' => [],
-            'reservas' => [],
-            'entradas' => [],
+            'stats' => [
+                ['label' => 'Pendientes', 'value' => (string)$pending, 'hint' => 'Por revisar'],
+                ['label' => 'Aprobadas', 'value' => (string)$approved, 'hint' => 'Con entrada PDF'],
+                ['label' => 'Rechazadas', 'value' => (string)$rejected, 'hint' => 'No aprobadas'],
+            ],
+            'reservas' => $this->reservas(),
+            'entradas' => $this->entradas(),
             'settings' => $this->settings(),
             'adminUsers' => $this->adminUsers(),
             'roleOptions' => self::roleOptions(),
@@ -45,8 +53,14 @@ final class AdminPanelRepository
         ];
     }
 
-    public function reservas(): array
+    public function reservas(?string $status = null): array
     {
+        if ($status !== null && in_array($status, ['pending', 'approved', 'rejected', 'cancelled'], true)) {
+            $stmt = $this->db->prepare('SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas WHERE status = :status ORDER BY created_at DESC LIMIT 50');
+            $stmt->execute(['status' => $status]);
+            return $stmt->fetchAll();
+        }
+
         return $this->db->query("SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas ORDER BY created_at DESC LIMIT 50")->fetchAll();
     }
 

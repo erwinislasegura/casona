@@ -4,12 +4,14 @@ $appVersion = $appVersion ?? '1.0.0';
 $userName = $userName ?? 'Administrador';
 $module = $module ?? 'inicio';
 $modules = [
+    'registros' => ['title' => 'Registros onepage', 'description' => 'Administra solicitudes del formulario público, estados y entradas PDF.', 'icon' => '▤', 'badge' => 'PDF'],
     'usuarios' => ['title' => 'Usuarios y roles', 'description' => 'Gestiona cuentas administrativas, estados y permisos.', 'icon' => '◉', 'badge' => 'ADM'],
 ];
 $sidebarGroups = [
-    'main' => ['label' => null, 'items' => ['usuarios']],
+    'main' => ['label' => null, 'items' => ['registros', 'usuarios']],
 ];
-$module = array_key_exists($module, $modules) ? $module : 'usuarios';
+$module = $module === 'reservas' ? 'registros' : $module;
+$module = array_key_exists($module, $modules) ? $module : 'registros';
 $currentModule = $modules[$module] ?? ['title' => 'Módulo no encontrado', 'description' => 'La ruta solicitada no está disponible.', 'icon' => '!', 'group' => 'main'];
 $moduleTitle = $moduleTitle ?? $currentModule['title'];
 $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $module : 'not-found') . '.php';
@@ -28,7 +30,7 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4F0S3pHCFWhT6+K6nvctHf1Ra9sENBo0LRn5q+8" crossorigin="anonymous">
   <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css?v=<?= rawurlencode($appVersion) ?>">
   <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css?v=<?= rawurlencode($appVersion) ?>">
-  <title>Usuarios y roles · Administración</title>
+  <title>Administración · Registros y usuarios</title>
 </head>
 <body class="login-body admin-shell coreui-admin has-mobile-app-nav">
   <aside class="admin-sidebar" aria-label="Secciones del panel">
@@ -53,7 +55,7 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   <div class="admin-main">
     <header class="admin-header">
       <nav class="admin-navbar">
-        <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/usuarios">Usuarios y roles</a></div>
+        <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/registros">Registros onepage</a><a href="<?= $basePath ?>/admin/usuarios">Usuarios y roles</a></div>
         <div class="admin-userbar"><span class="connection-status" data-connection-status>En línea</span><span class="top-icon">♧</span><span class="top-icon">☷</span><span class="top-icon">⌑</span><span class="admin-avatar"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"></span></div>
       </nav>
       <div class="admin-breadcrumb"><a href="<?= $basePath ?>/admin/">Administración</a><span>/</span><strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong></div>
@@ -69,7 +71,7 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   </div>
 
   <nav class="mobile-app-nav d-md-none" aria-label="Navegación móvil del panel">
-    <a href="<?= $basePath ?>/admin/usuarios">Usuarios</a><a href="<?= $basePath ?>/admin/logout">Salir</a>
+    <a href="<?= $basePath ?>/admin/registros">Registros</a><a href="<?= $basePath ?>/admin/usuarios">Usuarios</a><a href="<?= $basePath ?>/admin/logout">Salir</a>
   </nav>
 
   <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
