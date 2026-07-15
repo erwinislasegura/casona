@@ -647,3 +647,13 @@ body.coreui-admin {
 .actions-menu .action-button { width: 100%; }
 .action-button.is-ticket { color: #fff; border-color: #0f8a4b; background: #0f8a4b; }
 @media (max-width: 900px) { .actions-dropdown { width: 100%; } .actions-dropdown summary { width: 100%; } .actions-menu { position: static; margin-top: .45rem; box-shadow: none; } }
+.reservations-view .admin-table-wrap { border: 1px solid #e5e9ee; border-radius: .65rem; background: #fff; box-shadow: 0 16px 35px rgba(16,24,40,.06); }
+.reservations-view .admin-table { border-collapse: separate; border-spacing: 0; }
+.reservations-view .admin-table th { background: #f8fafc; color: #667085; }
+.reservations-view .admin-table td { vertical-align: middle; }
+.reservations-view .record-code strong { display: inline-flex; padding: .28rem .5rem; border-radius: 999px; background: #eef4ff; color: #3538cd; font-size: .78rem; }
+.reservations-view .contact-stack { display: grid; gap: .08rem; margin-top: .25rem; }
+.reservations-view .people-count { display: inline-flex; padding: .25rem .55rem; border-radius: 999px; background: #fff7e0; color: #7a4b00; font-weight: 900; font-size: .78rem; }
+.reservations-view .amount { display: block; margin-top: .35rem; color: #344054; font-weight: 800; }
+.reservations-view .receipt-link { display: inline-flex; align-items: center; min-height: 28px; padding: .22rem .5rem; border-radius: .35rem; background: #f2f4f7; color: #344054; text-decoration: none; font-weight: 800; font-size: .76rem; }
+.reservations-view .receipt-link.is-ticket { background: #ecfdf3; color: #067647; }
