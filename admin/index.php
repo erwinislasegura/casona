@@ -288,10 +288,10 @@ function build_tickets_pdf(array $reservation): string
 $basePath = app_base_path();
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/admin/', PHP_URL_PATH) ?: '/admin/';
 $adminPos = strpos($path, '/admin');
-$module = 'inicio';
+$module = 'usuarios';
 if ($adminPos !== false) {
     $modulePath = trim(substr($path, $adminPos + strlen('/admin')), '/');
-    $module = $modulePath === '' ? 'inicio' : (strtok($modulePath, '/') ?: 'inicio');
+    $module = $modulePath === '' ? 'usuarios' : (strtok($modulePath, '/') ?: 'usuarios');
 }
 
 if ($module === 'logout') {
@@ -369,6 +369,18 @@ try {
             $panelRepository->saveSettings($_POST);
             $_SESSION['admin_flash'] = 'Configuración guardada correctamente.';
             header('Location: ' . app_url('/admin/configuracion'));
+            exit;
+        }
+        if ($action === 'create_admin_user') {
+            $panelRepository->saveAdminUser($_POST);
+            $_SESSION['admin_flash'] = 'Usuario creado correctamente.';
+            header('Location: ' . app_url('/admin/usuarios'));
+            exit;
+        }
+        if ($action === 'update_admin_user') {
+            $panelRepository->saveAdminUser($_POST, (int)($_POST['user_id'] ?? 0));
+            $_SESSION['admin_flash'] = 'Usuario actualizado correctamente.';
+            header('Location: ' . app_url('/admin/usuarios'));
             exit;
         }
         if ($action === 'validate_ticket') {
