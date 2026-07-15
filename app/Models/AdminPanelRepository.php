@@ -17,6 +17,8 @@ final class AdminPanelRepository
             'reservas' => [],
             'entradas' => [],
             'settings' => ['event_name' => 'Fiesta Ochentera Solidaria', 'sales_mode' => 'Reservas con confirmación', 'notifications' => 'Activas'],
+            'adminUsers' => [],
+            'roleOptions' => self::roleOptions(),
             'dbWarning' => 'No se pudo conectar a la base de datos. Revisa config/database.php y ejecuta database/schema.sql.',
         ];
     }
@@ -31,26 +33,34 @@ final class AdminPanelRepository
     public function dashboardData(): array
     {
         $this->ensurePanelTables();
-        $settings = $this->settings();
+        $this->ensureAdminUsersTable();
         $pending = (int)$this->db->query("SELECT COUNT(*) FROM reservas WHERE status = 'pending'")->fetchColumn();
-        $tickets = (int)$this->db->query('SELECT COUNT(*) FROM entradas')->fetchColumn();
-        $entered = (int)$this->db->query("SELECT COUNT(*) FROM entradas WHERE status = 'entered'")->fetchColumn();
+        $approved = (int)$this->db->query("SELECT COUNT(*) FROM reservas WHERE status = 'approved'")->fetchColumn();
+        $rejected = (int)$this->db->query("SELECT COUNT(*) FROM reservas WHERE status = 'rejected'")->fetchColumn();
 
         return [
             'stats' => [
-                ['label' => 'Solicitudes', 'value' => (string)$pending, 'hint' => 'Pendientes'],
-                ['label' => 'Entradas', 'value' => (string)$tickets, 'hint' => 'Emitidas'],
-                ['label' => 'Validadas', 'value' => (string)$entered, 'hint' => 'En puerta'],
+                ['label' => 'Pendientes', 'value' => (string)$pending, 'hint' => 'Por revisar'],
+                ['label' => 'Aprobadas', 'value' => (string)$approved, 'hint' => 'Con entrada PDF'],
+                ['label' => 'Rechazadas', 'value' => (string)$rejected, 'hint' => 'No aprobadas'],
             ],
             'reservas' => $this->reservas(),
             'entradas' => $this->entradas(),
-            'settings' => $settings,
+            'settings' => $this->settings(),
+            'adminUsers' => $this->adminUsers(),
+            'roleOptions' => self::roleOptions(),
             'dbWarning' => '',
         ];
     }
 
-    public function reservas(): array
+    public function reservas(?string $status = null): array
     {
+        if ($status !== null && in_array($status, ['pending', 'approved', 'rejected', 'cancelled'], true)) {
+            $stmt = $this->db->prepare('SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas WHERE status = :status ORDER BY created_at DESC LIMIT 50');
+            $stmt->execute(['status' => $status]);
+            return $stmt->fetchAll();
+        }
+
         return $this->db->query("SELECT id, request_code, full_name, rut, phone, email, people_count, total_amount, status, receipt_path, receipt_name, created_at FROM reservas ORDER BY created_at DESC LIMIT 50")->fetchAll();
     }
 
@@ -61,6 +71,7 @@ final class AdminPanelRepository
 
     public function settings(): array
     {
+        $this->ensureSettingsTable();
         $rows = $this->db->query('SELECT setting_key, setting_value FROM admin_settings')->fetchAll();
         $settings = [];
         foreach ($rows as $row) {
@@ -216,6 +227,7 @@ final class AdminPanelRepository
 
     public function saveSettings(array $input): void
     {
+        $this->ensureSettingsTable();
         $allowed = ['event_name', 'sales_mode', 'notifications'];
         $stmt = $this->db->prepare('INSERT INTO admin_settings (setting_key, setting_value) VALUES (:k, :v) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)');
         foreach ($allowed as $key) {
@@ -235,5 +247,57 @@ final class AdminPanelRepository
         $update = $this->db->prepare("UPDATE entradas SET status = 'entered', entered_at = NOW(), scanned_by = :admin WHERE id = :id");
         $update->execute(['admin' => $adminId, 'id' => $ticket['id']]);
         return ['ok' => true, 'message' => 'Entrada validada: ' . $ticket['full_name'] . ' · ' . $ticket['request_code'] . ' · válida para ' . (int)$ticket['people_count'] . ' persona(s).'];
+    }
+
+
+    private function ensureSettingsTable(): void
+    {
+        $this->db->exec("CREATE TABLE IF NOT EXISTS admin_settings (setting_key VARCHAR(80) PRIMARY KEY, setting_value TEXT NOT NULL, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP) ENGINE=InnoDB");
+        $this->db->exec("INSERT IGNORE INTO admin_settings (setting_key, setting_value) VALUES ('event_name','Fiesta Ochentera Solidaria'),('sales_mode','Reservas con confirmación'),('notifications','Activas')");
+    }
+
+
+    public static function roleOptions(): array
+    {
+        return ['admin' => 'Administrador', 'scanner' => 'Validador', 'viewer' => 'Lectura'];
+    }
+
+    public function adminUsers(): array
+    {
+        $this->ensureAdminUsersTable();
+        return $this->db->query('SELECT id, name, username, email, role, is_active, last_login_at, created_at FROM admin_users ORDER BY name ASC')->fetchAll();
+    }
+
+    public function saveAdminUser(array $input, ?int $id = null): void
+    {
+        $this->ensureAdminUsersTable();
+        $role = (string)($input['role'] ?? 'viewer');
+        if (!array_key_exists($role, self::roleOptions())) $role = 'viewer';
+        $data = [
+            'name' => trim((string)($input['name'] ?? '')),
+            'username' => mb_strtolower(trim((string)($input['username'] ?? ''))),
+            'email' => mb_strtolower(trim((string)($input['email'] ?? ''))),
+            'role' => $role,
+            'is_active' => (int)($input['is_active'] ?? 1) === 1 ? 1 : 0,
+        ];
+        $password = trim((string)($input['password'] ?? ''));
+        if ($id) {
+            $sql = 'UPDATE admin_users SET name = :name, username = :username, email = :email, role = :role, is_active = :is_active';
+            if ($password !== '') {
+                $sql .= ', password_hash = :password_hash, failed_login_count = 0, locked_until = NULL';
+                $data['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+            }
+            $sql .= ' WHERE id = :id';
+            $data['id'] = $id;
+            $this->db->prepare($sql)->execute($data);
+            return;
+        }
+        $data['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+        $this->db->prepare('INSERT INTO admin_users (name, username, email, password_hash, role, is_active) VALUES (:name, :username, :email, :password_hash, :role, :is_active)')->execute($data);
+    }
+
+    private function ensureAdminUsersTable(): void
+    {
+        $this->db->exec("CREATE TABLE IF NOT EXISTS admin_users (id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, name VARCHAR(120) NOT NULL, username VARCHAR(60) NOT NULL, email VARCHAR(190) NOT NULL, password_hash VARCHAR(255) NOT NULL, role ENUM('admin','scanner','viewer') NOT NULL DEFAULT 'viewer', is_active TINYINT(1) NOT NULL DEFAULT 1, last_login_at DATETIME NULL, last_login_ip VARBINARY(16) NULL, failed_login_count INT UNSIGNED NOT NULL DEFAULT 0, locked_until DATETIME NULL, created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, UNIQUE KEY uq_admin_users_username (username), UNIQUE KEY uq_admin_users_email (email), KEY idx_admin_users_active (is_active), KEY idx_admin_users_locked_until (locked_until)) ENGINE=InnoDB");
     }
 }

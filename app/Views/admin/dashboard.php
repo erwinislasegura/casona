@@ -4,18 +4,14 @@ $appVersion = $appVersion ?? '1.0.0';
 $userName = $userName ?? 'Administrador';
 $module = $module ?? 'inicio';
 $modules = [
-    'inicio' => ['title' => 'Dashboard', 'description' => 'Resumen general del panel y accesos rápidos.', 'icon' => '⌂', 'badge' => 'NEW'],
-    'reservas' => ['title' => 'Reservas', 'description' => 'Gestiona las reservas y solicitudes de mesas.', 'icon' => '◷', 'group' => 'components'],
-    'scanner' => ['title' => 'Escáner', 'description' => 'Valida entradas QR desde el dispositivo autorizado.', 'icon' => '⌖', 'group' => 'components'],
-    'entradas' => ['title' => 'Entradas', 'description' => 'Revisa y administra las entradas emitidas.', 'icon' => '▤', 'group' => 'components'],
-    'configuracion' => ['title' => 'Settings', 'description' => 'Ajustes generales del evento y del panel.', 'icon' => '⚙', 'group' => 'theme'],
+    'registros' => ['title' => 'Registros onepage', 'description' => 'Administra solicitudes del formulario público, estados y entradas PDF.', 'icon' => '▤', 'badge' => 'PDF'],
+    'usuarios' => ['title' => 'Usuarios y roles', 'description' => 'Gestiona cuentas administrativas, estados y permisos.', 'icon' => '◉', 'badge' => 'ADM'],
 ];
 $sidebarGroups = [
-    'main' => ['label' => null, 'items' => ['inicio']],
-    'theme' => ['label' => 'THEME', 'items' => ['configuracion']],
-    'components' => ['label' => 'COMPONENTS', 'items' => ['reservas', 'scanner', 'entradas']],
-    'extras' => ['label' => 'EXTRAS', 'items' => []],
+    'main' => ['label' => null, 'items' => ['registros', 'usuarios']],
 ];
+$module = $module === 'reservas' ? 'registros' : $module;
+$module = array_key_exists($module, $modules) ? $module : 'registros';
 $currentModule = $modules[$module] ?? ['title' => 'Módulo no encontrado', 'description' => 'La ruta solicitada no está disponible.', 'icon' => '!', 'group' => 'main'];
 $moduleTitle = $moduleTitle ?? $currentModule['title'];
 $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $module : 'not-found') . '.php';
@@ -34,11 +30,11 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4F0S3pHCFWhT6+K6nvctHf1Ra9sENBo0LRn5q+8" crossorigin="anonymous">
   <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css?v=<?= rawurlencode($appVersion) ?>">
   <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css?v=<?= rawurlencode($appVersion) ?>">
-  <title>Panel de administración · Fiesta 80s</title>
+  <title>Administración · Registros y usuarios</title>
 </head>
 <body class="login-body admin-shell coreui-admin has-mobile-app-nav">
   <aside class="admin-sidebar" aria-label="Secciones del panel">
-    <a class="admin-sidebar-brand" href="<?= $basePath ?>/admin/" aria-label="Inicio del panel"><span class="coreui-mark">⬡</span><strong>COREUI</strong></a>
+    <a class="admin-sidebar-brand" href="<?= $basePath ?>/admin/" aria-label="Administración"><span class="coreui-mark">⬡</span><strong>ADMIN</strong></a>
     <div class="admin-sidebar-menu">
       <?php foreach ($sidebarGroups as $group): ?>
         <?php if ($group['label']): ?><div class="admin-sidebar-title"><?= htmlspecialchars($group['label'], ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
@@ -59,10 +55,10 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   <div class="admin-main">
     <header class="admin-header">
       <nav class="admin-navbar">
-        <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/">Dashboard</a><a href="<?= $basePath ?>/admin/reservas">Reservas</a><a href="<?= $basePath ?>/admin/entradas">Entradas</a><a href="<?= $basePath ?>/admin/configuracion">Settings</a></div>
+        <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/registros">Registros onepage</a><a href="<?= $basePath ?>/admin/usuarios">Usuarios y roles</a></div>
         <div class="admin-userbar"><span class="connection-status" data-connection-status>En línea</span><span class="top-icon">♧</span><span class="top-icon">☷</span><span class="top-icon">⌑</span><span class="admin-avatar"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"></span></div>
       </nav>
-      <div class="admin-breadcrumb"><a href="<?= $basePath ?>/admin/">Home</a><span>/</span><strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong></div>
+      <div class="admin-breadcrumb"><a href="<?= $basePath ?>/admin/">Administración</a><span>/</span><strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong></div>
     </header>
 
     <main class="admin-layout">
@@ -75,13 +71,12 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   </div>
 
   <nav class="mobile-app-nav d-md-none" aria-label="Navegación móvil del panel">
-    <a href="<?= $basePath ?>/admin/">Inicio</a><a href="<?= $basePath ?>/admin/reservas?status=pending">Solicitudes</a><a href="<?= $basePath ?>/admin/scanner">Escáner</a><a href="<?= $basePath ?>/admin/entradas">Entradas</a><a href="<?= $basePath ?>/admin/logout">Salir</a>
+    <a href="<?= $basePath ?>/admin/registros">Registros</a><a href="<?= $basePath ?>/admin/usuarios">Usuarios</a><a href="<?= $basePath ?>/admin/logout">Salir</a>
   </nav>
 
   <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/app-update.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
   <script src="<?= $basePath ?>/assets/js/connection-status.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <?php if ($module === 'scanner'): ?><script src="<?= $basePath ?>/assets/js/scanner.v1.js?v=<?= rawurlencode($appVersion) ?>" defer></script><?php endif; ?>
 </body>
 </html>
