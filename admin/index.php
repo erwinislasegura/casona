@@ -169,49 +169,65 @@ function build_ticket_page(array $reservation, array $ticket, int $number, int $
     $folio = mb_substr($ticketCode, 0, 32);
     $content = '';
 
-    // Compact event-pass format: 680 x 260 pt, optimized for mobile download/print.
-    $content .= pdf_rect(0, 0, 680, 260, '1 0.47 0.05');
-    $content .= pdf_rect(42, 38, 596, 184, '0.015 0.025 0.055');
-    $content .= pdf_rect(46, 42, 588, 176, '0.025 0.038 0.075');
+    // Compact event-pass format: 680 x 260 pt, aligned with the onepage palette.
+    $content .= pdf_rect(0, 0, 680, 260, '0.031 0.051 0.102');
+    $content .= pdf_rect(0, 222, 680, 38, '0.059 0.090 0.188');
+    $content .= pdf_rect(0, 0, 680, 16, '0.010 0.018 0.040');
+    $content .= pdf_rect(42, 30, 596, 198, '0.010 0.018 0.040');
+    $content .= pdf_rect(46, 34, 588, 190, '0.059 0.090 0.188');
 
-    // Hero strip inspired by a horizontal event pass, with the event artwork used as a decorative accent.
-    $content .= pdf_rect(46, 42, 426, 176, '0.015 0.025 0.055');
-    $content .= pdf_rect(48, 44, 422, 172, '0.025 0.040 0.085');
-    if (isset($imageNames['Hero'])) $content .= pdf_draw_image($imageNames['Hero'], 318, 42, 146, 92);
+    // Onepage-inspired visual block: dark card, ABBA artwork accent, neon overlays.
+    $content .= pdf_rect(46, 34, 430, 190, '0.031 0.051 0.102');
+    if (isset($imageNames['Hero'])) $content .= pdf_draw_image($imageNames['Hero'], 286, 34, 190, 124);
+    $content .= pdf_rect(46, 34, 430, 42, '0.031 0.051 0.102');
+    $content .= pdf_rect(46, 198, 430, 26, '0.031 0.051 0.102');
+    $content .= pdf_rect(46, 34, 7, 190, '1.000 0.310 0.722');
+    $content .= pdf_rect(53, 34, 7, 190, '0.220 0.875 1.000');
 
-    // Right validation panel.
-    $content .= "1 1 1 RG\n1.2 w\n[10 10] 0 d\n484 52 m\n484 208 l\nS\n[] 0 d\n";
-    $content .= pdf_rect(500, 58, 118, 148, '0.96 0.98 1');
-    if ($token !== '') $content .= pdf_qr(512, 190, 3.25, $token);
-    $content .= pdf_text(516, 70, 7, 'QR VALIDACION', '0.08 0.10 0.16', 'F2');
+    // Project logos from the onepage header.
+    $logoY = 181;
+    $logoX = 72;
+    foreach ([['LogoSan', 0], ['LogoCiclon', 38], ['LogoCasona', 76]] as $logo) {
+        $x = $logoX + $logo[1];
+        $content .= pdf_rect($x - 2, $logoY - 2, 34, 34, '1 1 1');
+        if (isset($imageNames[$logo[0]])) $content .= pdf_draw_image($imageNames[$logo[0]], $x, $logoY, 30, 30);
+    }
 
-    // Header and labels.
-    $content .= pdf_text(320, 226, 12, 'TICKET', '1 1 1', 'F2');
-    $content .= pdf_text(333, 212, 8, 'EVENTO', '1 1 1');
-    $content .= pdf_text(68, 184, 30, 'PARTY PASS', '1 1 1', 'F2');
-    $content .= pdf_text(70, 166, 8, 'FIESTA OCHENTERA SOLIDARIA', '0.22 0.90 1', 'F2');
+    // Header and event copy matching the onepage language.
+    $content .= pdf_text(520, 236, 8, 'ENTRADA DIGITAL', '1.000 0.812 0.361', 'F2');
+    $content .= pdf_text(72, 164, 8, 'FIESTA OCHENTERA SOLIDARIA', '1.000 0.812 0.361', 'F2');
+    $content .= pdf_text(72, 139, 23, 'GRAN FIESTA', '1 1 1', 'F2');
+    $content .= pdf_text(72, 115, 23, 'OCHENTERA', '0.220 0.875 1.000', 'F2');
+    $content .= pdf_text(72, 95, 10, 'Tributo a ABBA · Bingo · Karaoke · Fiesta bailable', '0.824 0.859 0.918');
 
-    // Detail pills.
-    $content .= pdf_rect(68, 126, 128, 28, '0.05 0.90 0.95');
-    $content .= pdf_rect(196, 126, 214, 28, '0.025 0.035 0.075');
-    $content .= "0.80 0.86 0.95 RG\n0.8 w\n196 126 214 28 re S\n";
-    $content .= pdf_text(82, 136, 10, '24 JULIO 2026', '0.02 0.05 0.09', 'F2');
-    $content .= pdf_text(214, 136, 9, 'Club La Casona · Los Angeles', '1 1 1');
+    // Date/location pills from the onepage hero cards.
+    $content .= pdf_rect(72, 61, 126, 28, '1.000 0.812 0.361');
+    $content .= pdf_rect(202, 61, 218, 28, '0.059 0.090 0.188');
+    $content .= "0.220 0.875 1.000 RG\n0.8 w\n202 61 218 28 re S\n";
+    $content .= pdf_text(84, 71, 9, '24 JULIO 2026', '0.047 0.071 0.125', 'F2');
+    $content .= pdf_text(218, 71, 8, 'Club La Casona · Los Angeles · 21:00 hrs', '1 1 1');
 
-    $content .= pdf_text(68, 102, 8, 'TITULAR', '0.80 0.86 0.95');
-    $content .= pdf_text(132, 96, 16, strtoupper($holder), '1 0.47 0.05', 'F2');
-    $content .= pdf_text(68, 78, 8, 'FOLIO', '0.80 0.86 0.95');
-    $content .= pdf_text(132, 78, 8, $folio, '1 1 1');
-    $content .= pdf_text(68, 60, 8, 'PERSONAS', '0.80 0.86 0.95');
-    $content .= pdf_text(132, 54, 16, (string)$people, '0.05 0.90 0.95', 'F2');
-    $content .= pdf_text(176, 60, 8, 'Presentar este QR en acceso para validar la entrada.', '0.80 0.86 0.95');
+    // Attendee and folio strip.
+    $content .= pdf_rect(72, 38, 350, 18, '0.255 0.871 0.502');
+    $content .= pdf_text(84, 44, 7, 'TITULAR', '0.047 0.071 0.125', 'F2');
+    $content .= pdf_text(132, 44, 8, strtoupper($holder), '0.047 0.071 0.125', 'F2');
+    $content .= pdf_text(290, 44, 7, 'FOLIO ' . $folio, '0.047 0.071 0.125');
 
-    // Decorative dot matrix.
-    for ($x = 424; $x <= 456; $x += 12) {
-        for ($y = 170; $y <= 206; $y += 12) {
-            $content .= sprintf('0.95 0.97 1 rg\n%.2F %.2F 2.20 2.20 re f\n', $x, $y);
+    // Right validation panel with dashed separator and QR.
+    $content .= "1 1 1 RG\n1.1 w\n[9 9] 0 d\n488 46 m\n488 214 l\nS\n[] 0 d\n";
+    $content .= pdf_rect(504, 52, 112, 146, '0.960 0.980 1.000');
+    if ($token !== '') $content .= pdf_qr(516, 185, 3.05, $token);
+    $content .= pdf_text(525, 66, 7, 'VALIDAR QR', '0.047 0.071 0.125', 'F2');
+    $content .= pdf_text(516, 38, 7, 'Personas autorizadas: ' . $people, '0.824 0.859 0.918');
+
+    // Decorative onepage grid/dots.
+    for ($x = 424; $x <= 460; $x += 12) {
+        for ($y = 176; $y <= 212; $y += 12) {
+            $content .= sprintf('0.824 0.859 0.918 rg\n%.2F %.2F 2.10 2.10 re f\n', $x, $y);
         }
     }
+    $content .= pdf_rect(448, 88, 16, 16, '1.000 0.310 0.722');
+    $content .= pdf_rect(452, 92, 16, 16, '0.220 0.875 1.000');
 
     return $content;
 }
