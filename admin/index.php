@@ -110,9 +110,9 @@ function qr_matrix(string $text): array
     return $m;
 }
 
-function pdf_text(float $x, float $y, int $size, string $text, string $color = '1 1 1'): string
+function pdf_text(float $x, float $y, int $size, string $text, string $color = '1 1 1', string $font = 'F1'): string
 {
-    return $color . " rg\nBT\n/F1 " . $size . " Tf\n" . $x . ' ' . $y . " Td\n(" . pdf_escape($text) . ") Tj\nET\n";
+    return $color . " rg\nBT\n/" . $font . ' ' . $size . " Tf\n" . $x . ' ' . $y . " Td\n(" . pdf_escape($text) . ") Tj\nET\n";
 }
 
 function pdf_rect(float $x, float $y, float $w, float $h, string $color): string
@@ -163,71 +163,56 @@ function pdf_qr(float $x, float $y, float $cell, string $token): string
 function build_ticket_page(array $reservation, array $ticket, int $number, int $total, array $imageNames): string
 {
     $ticketCode = (string)($ticket['ticket_code'] ?: ('Ticket #' . $ticket['id']));
-    $holder = (string)($ticket['holder_name'] ?: $reservation['full_name']);
+    $holder = mb_substr((string)($ticket['holder_name'] ?: $reservation['full_name']), 0, 28);
     $token = (string)($ticket['qr_token'] ?? '');
-    $people = (int)$reservation['people_count'];
+    $people = max(1, (int)$reservation['people_count']);
+    $folio = mb_substr($ticketCode, 0, 32);
     $content = '';
-    $content .= pdf_rect(0, 0, 595, 842, '0.025 0.035 0.075');
-    $content .= pdf_rect(24, 30, 547, 782, '0.045 0.065 0.125');
 
-    // Header logos and title
-    if (isset($imageNames['LogoSan'])) $content .= pdf_draw_image($imageNames['LogoSan'], 48, 760, 42, 42); else $content .= pdf_rect(48, 760, 42, 42, '0.95 1 0.92');
-    if (isset($imageNames['LogoCiclon'])) $content .= pdf_draw_image($imageNames['LogoCiclon'], 100, 760, 42, 42); else $content .= pdf_rect(100, 760, 42, 42, '1 0.62 0.16');
-    if (isset($imageNames['LogoCasona'])) $content .= pdf_draw_image($imageNames['LogoCasona'], 152, 760, 42, 42); else $content .= pdf_rect(152, 760, 42, 42, '0.93 0.94 0.96');
-    $content .= pdf_text(404, 786, 9, 'ACCESO OFICIAL', '1 0.78 0.20');
-    $content .= pdf_text(340, 762, 24, 'ENTRADA DIGITAL', '1 1 1');
+    // Compact event-pass format: 680 x 260 pt, optimized for mobile download/print.
+    $content .= pdf_rect(0, 0, 680, 260, '1 0.47 0.05');
+    $content .= pdf_rect(42, 38, 596, 184, '0.015 0.025 0.055');
+    $content .= pdf_rect(46, 42, 588, 176, '0.025 0.038 0.075');
 
-    // Hero image block
-    if (isset($imageNames['Hero'])) $content .= pdf_draw_image($imageNames['Hero'], 24, 550, 547, 185);
-    else $content .= pdf_rect(24, 550, 547, 185, '0.11 0.15 0.28');
-    $content .= pdf_rect(24, 550, 547, 65, '0.025 0.035 0.075');
-    $content .= pdf_text(42, 590, 9, 'BINGO · KARAOKE · TRIBUTO · FIESTA BAILABLE', '1 0.78 0.20');
-    $content .= pdf_text(42, 568, 22, 'FIESTA OCHENTERA SOLIDARIA', '1 1 1');
-    $content .= pdf_text(42, 548, 19, 'TRIBUTO A ABBA', '0.22 0.87 1');
-    $content .= pdf_rect(462, 680, 78, 28, '0.42 0.95 0.48');
-    $content .= pdf_text(480, 690, 10, 'ACTIVA', '0.03 0.08 0.04');
+    // Hero strip inspired by a horizontal event pass, with the event artwork used as a decorative accent.
+    $content .= pdf_rect(46, 42, 426, 176, '0.015 0.025 0.055');
+    $content .= pdf_rect(48, 44, 422, 172, '0.025 0.040 0.085');
+    if (isset($imageNames['Hero'])) $content .= pdf_draw_image($imageNames['Hero'], 318, 42, 146, 92);
 
-    // Info cards
-    $content .= pdf_rect(24, 500, 250, 42, '0.055 0.078 0.145');
-    $content .= pdf_rect(286, 500, 285, 42, '0.055 0.078 0.145');
-    $content .= pdf_text(42, 526, 8, 'FECHA Y HORA', '0.64 0.70 0.80');
-    $content .= pdf_text(42, 510, 11, 'Vie. 24 julio 2026 · 21:00 - 05:00 hrs.', '1 1 1');
-    $content .= pdf_text(304, 526, 8, 'LUGAR', '0.64 0.70 0.80');
-    $content .= pdf_text(304, 510, 11, 'Club La Casona · Los Angeles', '1 1 1');
+    // Right validation panel.
+    $content .= "1 1 1 RG\n1.2 w\n[10 10] 0 d\n484 52 m\n484 208 l\nS\n[] 0 d\n";
+    $content .= pdf_rect(500, 58, 118, 148, '0.96 0.98 1');
+    if ($token !== '') $content .= pdf_qr(512, 190, 3.25, $token);
+    $content .= pdf_text(516, 70, 7, 'QR VALIDACION', '0.08 0.10 0.16', 'F2');
 
-    // Main attendee card
-    $content .= pdf_rect(24, 145, 332, 335, '0.055 0.078 0.145');
-    $content .= pdf_text(46, 454, 8, 'TITULAR', '0.22 0.87 1');
-    $content .= pdf_text(46, 430, 19, strtoupper($holder), '1 1 1');
-    $content .= pdf_text(46, 386, 8, 'RUT', '0.64 0.70 0.80');
-    $content .= pdf_text(236, 386, 9, (string)$reservation['rut'], '1 1 1');
-    $content .= pdf_rect(46, 374, 285, 1, '0.64 0.70 0.80');
-    $content .= pdf_text(46, 346, 8, 'CORREO', '0.64 0.70 0.80');
-    $content .= pdf_text(180, 346, 9, (string)$reservation['email'], '1 1 1');
-    $content .= pdf_rect(46, 334, 285, 1, '0.64 0.70 0.80');
-    $content .= pdf_text(46, 306, 8, 'FOLIO', '0.64 0.70 0.80');
-    $content .= pdf_text(212, 306, 9, $ticketCode, '1 1 1');
-    $content .= pdf_rect(46, 294, 285, 1, '0.64 0.70 0.80');
-    $content .= pdf_rect(46, 214, 285, 58, '1 0.72 0.18');
-    $content .= pdf_text(72, 236, 34, (string)$people, '0.03 0.05 0.09');
-    $content .= pdf_text(126, 240, 12, 'PERSONAS AUTORIZADAS', '0.03 0.05 0.09');
-    $content .= pdf_text(46, 176, 8, 'Entrada aprobada y emitida para el titular.', '0.80 0.86 0.95');
-    $content .= pdf_text(46, 158, 8, 'Presentar el codigo QR en el acceso.', '0.80 0.86 0.95');
+    // Header and labels.
+    $content .= pdf_text(320, 226, 12, 'TICKET', '1 1 1', 'F2');
+    $content .= pdf_text(333, 212, 8, 'EVENTO', '1 1 1');
+    $content .= pdf_text(68, 184, 30, 'PARTY PASS', '1 1 1', 'F2');
+    $content .= pdf_text(70, 166, 8, 'FIESTA OCHENTERA SOLIDARIA', '0.22 0.90 1', 'F2');
 
-    // QR card
-    $content .= pdf_rect(370, 145, 201, 335, '0.96 0.98 1');
-    if ($token !== '') $content .= pdf_qr(414, 420, 4.8, $token);
-    $content .= pdf_text(426, 246, 10, 'ESCANEAR AL INGRESAR', '0.05 0.08 0.14');
-    $content .= pdf_text(432, 224, 8, $ticketCode, '0.45 0.50 0.58');
-    $content .= pdf_rect(414, 180, 114, 24, '0.88 0.92 0.97');
-    $content .= pdf_text(438, 188, 8, 'FUERA DEL EVENTO', '0.35 0.40 0.50');
-    $content .= pdf_text(426, 122, 9, 'QR unico y seguro', '0.05 0.08 0.14');
-    $content .= pdf_text(414, 106, 8, 'Validacion en linea por scanner', '0.45 0.50 0.58');
+    // Detail pills.
+    $content .= pdf_rect(68, 126, 128, 28, '0.05 0.90 0.95');
+    $content .= pdf_rect(196, 126, 214, 28, '0.025 0.035 0.075');
+    $content .= "0.80 0.86 0.95 RG\n0.8 w\n196 126 214 28 re S\n";
+    $content .= pdf_text(82, 136, 10, '24 JULIO 2026', '0.02 0.05 0.09', 'F2');
+    $content .= pdf_text(214, 136, 9, 'Club La Casona · Los Angeles', '1 1 1');
 
-    // Important footer
-    $content .= pdf_rect(24, 62, 547, 54, '0.055 0.078 0.145');
-    $content .= pdf_text(44, 94, 8, 'IMPORTANTE', '1 1 1');
-    $content .= pdf_text(44, 76, 8, 'Muestra esta entrada desde tu celular. El personal validara el QR y registrara el ingreso del grupo.', '0.82 0.89 1');
+    $content .= pdf_text(68, 102, 8, 'TITULAR', '0.80 0.86 0.95');
+    $content .= pdf_text(132, 96, 16, strtoupper($holder), '1 0.47 0.05', 'F2');
+    $content .= pdf_text(68, 78, 8, 'FOLIO', '0.80 0.86 0.95');
+    $content .= pdf_text(132, 78, 8, $folio, '1 1 1');
+    $content .= pdf_text(68, 60, 8, 'PERSONAS', '0.80 0.86 0.95');
+    $content .= pdf_text(132, 54, 16, (string)$people, '0.05 0.90 0.95', 'F2');
+    $content .= pdf_text(176, 60, 8, 'Presentar este QR en acceso para validar la entrada.', '0.80 0.86 0.95');
+
+    // Decorative dot matrix.
+    for ($x = 424; $x <= 456; $x += 12) {
+        for ($y = 170; $y <= 206; $y += 12) {
+            $content .= sprintf('0.95 0.97 1 rg\n%.2F %.2F 2.20 2.20 re f\n', $x, $y);
+        }
+    }
+
     return $content;
 }
 
@@ -245,8 +230,9 @@ function build_tickets_pdf(array $reservation): string
     $objects[1] = '';
     $objects[2] = '';
     $objects[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+    $objects[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>';
     $imageNames = [];
-    $nextId = 4;
+    $nextId = 5;
     foreach ($imagePaths as $name => $path) {
         $image = pdf_load_image($path);
         if (!$image || empty($image['data'])) continue;
@@ -263,7 +249,7 @@ function build_tickets_pdf(array $reservation): string
         $xObjectItems = [];
         foreach ($imageNames as $imageName) { $id = (int)substr($imageName, 2); $xObjectItems[] = '/' . $imageName . ' ' . $id . ' 0 R'; }
         $xObject = $xObjectItems ? ' /XObject << ' . implode(' ', $xObjectItems) . ' >>' : '';
-        $objects[$pageId] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >>' . $xObject . ' >> /Contents ' . $contentId . ' 0 R >>';
+        $objects[$pageId] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 680 260] /Resources << /Font << /F1 3 0 R /F2 4 0 R >>' . $xObject . ' >> /Contents ' . $contentId . ' 0 R >>';
         $objects[$contentId] = '<< /Length ' . strlen($stream) . " >>\nstream\n" . $stream . "\nendstream";
     }
     $objects[1] = '<< /Type /Catalog /Pages 2 0 R >>';
