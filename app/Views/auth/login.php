@@ -13,18 +13,18 @@ $redirectTo = $redirectTo ?? '/admin/';
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Fiesta 80s">
-  <link rel="manifest" href="<?= $basePath ?>/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="<?= $basePath ?>/assets/logo-ciclon.jpeg">
+  <link rel="manifest" href="<?= asset_url('/manifest.webmanifest') ?>">
+  <link rel="apple-touch-icon" href="<?= asset_url('/assets/logo-ciclon.jpeg') ?>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4F0S3pHCFWhT6+K6nvctHf1Ra9sENBo0LRn5q+8" crossorigin="anonymous">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css?v=<?= rawurlencode($appVersion) ?>">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css?v=<?= rawurlencode($appVersion) ?>">
+  <link rel="stylesheet" href="<?= asset_url('/assets/css/pwa.css', $appVersion) ?>">
+  <link rel="stylesheet" href="<?= asset_url('/assets/css/login.css', $appVersion) ?>">
   <title>Acceso administrador · Fiesta Ochentera Solidaria</title>
 </head>
 <body class="login-body auth-page public-visual-line">
   <main class="auth-shell container">
     <section class="auth-panel" aria-label="Acceso administrativo">
       <div class="auth-brand-strip">
-        <span class="logo-badge logo-main"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="Ciclón Producciones"></span>
+        <span class="logo-badge logo-main"><img src="<?= asset_url('/assets/logo-ciclon.jpeg') ?>" alt="Ciclón Producciones"></span>
         <div><span class="kicker">Ciclón Producciones</span><h1>Panel administrativo</h1><p>Fiesta Ochentera Solidaria</p></div>
       </div>
 
@@ -45,10 +45,10 @@ $redirectTo = $redirectTo ?? '/admin/';
       <footer class="auth-footer"><a class="link" href="<?= $basePath ?>/">Volver al sitio público</a><span>v<?= htmlspecialchars($appVersion, ENT_QUOTES, 'UTF-8') ?></span></footer>
     </section>
   </main>
-  <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <script src="<?= $basePath ?>/assets/js/app-update.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <script src="<?= $basePath ?>/assets/js/connection-status.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/install-pwa.js', $appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/service-worker-register.js', $appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/app-update.js', $appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/connection-status.js', $appVersion) ?>" defer></script>
   <script>
     document.querySelector('[data-toggle-password]')?.addEventListener('click', (event) => { const input = document.getElementById('password'); const show = input.type === 'password'; input.type = show ? 'text' : 'password'; event.currentTarget.textContent = show ? 'Ocultar' : 'Mostrar'; });
     document.querySelector('form')?.addEventListener('submit', (event) => event.currentTarget.classList.add('is-processing'));

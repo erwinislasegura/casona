@@ -1,18 +1,20 @@
 const PWA_VERSION = 'fiesta-80s-v1.0.1';
 const STATIC_CACHE = `${PWA_VERSION}-static`;
 const PAGE_CACHE = `${PWA_VERSION}-pages`;
-const OFFLINE_URL = '/offline.html';
+const BASE_PATH = new URL(self.registration.scope).pathname.replace(/\/$/, '');
+const withBase = (path) => `${BASE_PATH}${path}`;
+const OFFLINE_URL = withBase('/offline.html');
 const STATIC_ASSETS = [
   OFFLINE_URL,
-  '/manifest.webmanifest',
-  '/assets/css/login.css',
-  '/assets/css/pwa.css',
-  '/assets/js/install-pwa.js',
-  '/assets/js/service-worker-register.js',
-  '/assets/js/app-update.js',
-  '/assets/js/connection-status.js',
-  '/assets/js/scanner.v1.js',
-  '/assets/logo-san-gabriel.png','/assets/logo-ciclon.jpeg','/assets/logo-la-casona.jpeg','/assets/abba-color-1.png','/assets/abba-color-2.png','/assets/abba-color-3.png','/assets/abba.png','/assets/abba-cta.jpg'
+  withBase('/manifest.webmanifest'),
+  withBase('/assets/css/login.css'),
+  withBase('/assets/css/pwa.css'),
+  withBase('/assets/js/install-pwa.js'),
+  withBase('/assets/js/service-worker-register.js'),
+  withBase('/assets/js/app-update.js'),
+  withBase('/assets/js/connection-status.js'),
+  withBase('/assets/js/scanner.v1.js'),
+  withBase('/assets/logo-san-gabriel.png'),withBase('/assets/logo-ciclon.jpeg'),withBase('/assets/logo-la-casona.jpeg'),withBase('/assets/abba-color-1.png'),withBase('/assets/abba-color-2.png'),withBase('/assets/abba-color-3.png'),withBase('/assets/abba.png'),withBase('/assets/abba-cta.jpg')
 ];
 const SENSITIVE_PATTERNS = [
   /(?:^|\/)admin\/api\//, /(?:^|\/)admin\/reservas\//, /(?:^|\/)admin\/entradas\//, /(?:^|\/)admin\/usuarios\//,

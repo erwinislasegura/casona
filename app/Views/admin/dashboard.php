@@ -25,11 +25,11 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Fiesta 80s">
-  <link rel="manifest" href="<?= $basePath ?>/manifest.webmanifest">
-  <link rel="apple-touch-icon" href="<?= $basePath ?>/assets/logo-ciclon.jpeg">
+  <link rel="manifest" href="<?= asset_url('/manifest.webmanifest') ?>">
+  <link rel="apple-touch-icon" href="<?= asset_url('/assets/logo-ciclon.jpeg') ?>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4F0S3pHCFWhT6+K6nvctHf1Ra9sENBo0LRn5q+8" crossorigin="anonymous">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/pwa.css?v=<?= rawurlencode($appVersion) ?>">
-  <link rel="stylesheet" href="<?= $basePath ?>/assets/css/login.css?v=<?= rawurlencode($appVersion) ?>">
+  <link rel="stylesheet" href="<?= asset_url('/assets/css/pwa.css', $appVersion) ?>">
+  <link rel="stylesheet" href="<?= asset_url('/assets/css/login.css', $appVersion) ?>">
   <title>Administración · Registros y usuarios</title>
 </head>
 <body class="login-body admin-shell coreui-admin has-mobile-app-nav">
@@ -56,7 +56,7 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
     <header class="admin-header">
       <nav class="admin-navbar">
         <div class="admin-top-left"><button class="admin-menu-button" type="button" aria-label="Abrir menú">☰</button><a href="<?= $basePath ?>/admin/registros">Registros onepage</a><a href="<?= $basePath ?>/admin/usuarios">Usuarios y roles</a></div>
-        <div class="admin-userbar"><span class="connection-status" data-connection-status>En línea</span><span class="top-icon">♧</span><span class="top-icon">☷</span><span class="top-icon">⌑</span><span class="admin-avatar"><img src="<?= $basePath ?>/assets/logo-ciclon.jpeg" alt="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"></span></div>
+        <div class="admin-userbar"><span class="connection-status" data-connection-status>En línea</span><span class="top-icon">♧</span><span class="top-icon">☷</span><span class="top-icon">⌑</span><span class="admin-avatar"><img src="<?= asset_url('/assets/logo-ciclon.jpeg') ?>" alt="<?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>"></span></div>
       </nav>
       <div class="admin-breadcrumb"><a href="<?= $basePath ?>/admin/">Administración</a><span>/</span><strong><?= htmlspecialchars($moduleTitle, ENT_QUOTES, 'UTF-8') ?></strong></div>
     </header>
@@ -74,9 +74,9 @@ $moduleView = __DIR__ . '/modules/' . (array_key_exists($module, $modules) ? $mo
     <a href="<?= $basePath ?>/admin/registros">Registros</a><a href="<?= $basePath ?>/admin/usuarios">Usuarios</a><a href="<?= $basePath ?>/admin/logout">Salir</a>
   </nav>
 
-  <script src="<?= $basePath ?>/assets/js/install-pwa.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <script src="<?= $basePath ?>/assets/js/service-worker-register.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <script src="<?= $basePath ?>/assets/js/app-update.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
-  <script src="<?= $basePath ?>/assets/js/connection-status.js?v=<?= rawurlencode($appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/install-pwa.js', $appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/service-worker-register.js', $appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/app-update.js', $appVersion) ?>" defer></script>
+  <script src="<?= asset_url('/assets/js/connection-status.js', $appVersion) ?>" defer></script>
 </body>
 </html>
